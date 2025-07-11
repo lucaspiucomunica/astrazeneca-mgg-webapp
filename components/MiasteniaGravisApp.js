@@ -466,7 +466,7 @@ const MiasteniaGravisApp = () => {
                     <div className="bg-white bg-opacity-70 rounded-lg p-4 mb-4">
                       <h5 className="font-semibold text-gray-800 mb-2">Transcrição:</h5>
                       <p className="text-gray-700 leading-relaxed">
-                        "{testimonials[currentTestimonial].transcription}"
+                        &quot;{testimonials[currentTestimonial].transcription}&quot;
                       </p>
                     </div>
                   )}
