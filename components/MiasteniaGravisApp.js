@@ -662,7 +662,7 @@ const MiasteniaGravisApp = () => {
                           type="text"
                           value={testimonialData.nome}
                           onChange={(e) => handleTestimonialChange('nome', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
                           placeholder="Seu nome"
                         />
                       </div>
@@ -674,7 +674,7 @@ const MiasteniaGravisApp = () => {
                           type="number"
                           value={testimonialData.idade}
                           onChange={(e) => handleTestimonialChange('idade', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
                           placeholder="Sua idade"
                         />
                       </div>
@@ -688,7 +688,7 @@ const MiasteniaGravisApp = () => {
                         type="text"
                         value={testimonialData.cidade}
                         onChange={(e) => handleTestimonialChange('cidade', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
                         placeholder="São Paulo/SP"
                       />
                     </div>
@@ -701,7 +701,7 @@ const MiasteniaGravisApp = () => {
                         value={testimonialData.depoimento}
                         onChange={(e) => handleTestimonialChange('depoimento', e.target.value)}
                         rows="6"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
                         placeholder="Conte sua experiência com a Miastenia Gravis. Como foi o diagnóstico? Como é seu dia a dia? Que mensagem você gostaria de deixar para outras pessoas?"
                       />
                     </div>
