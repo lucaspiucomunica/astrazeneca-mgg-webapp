@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, User, FileText, Headphones, Home, MessageCircle, Video, ExternalLink, ArrowLeft, QrCode } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, User, FileText, Headphones, Home, MessageCircle, Video, ExternalLink, ArrowLeft } from 'lucide-react';
 
 const MiasteniaGravisApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -13,7 +13,7 @@ const MiasteniaGravisApp = () => {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
-  const [showQRCode, setShowQRCode] = useState(false);
+
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
   const [testimonialData, setTestimonialData] = useState({
     nome: '',
@@ -237,7 +237,7 @@ const MiasteniaGravisApp = () => {
   // Componente do Footer
   const Footer = () => (
     <div className="mt-8 border-t pt-6">
-      <div className="text-center">
+      <div className="flex flex-col items-center justify-center">
         <a 
           href="https://materiais.programafazbem.com.br/miastenia-gravis" 
           target="_blank" 
@@ -248,26 +248,16 @@ const MiasteniaGravisApp = () => {
           Acesse o site da campanha e saiba mais
         </a>
         
-        <button
-          onClick={() => setShowQRCode(!showQRCode)}
-          className="block mx-auto mt-4 text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-2"
-        >
-          <QrCode className="w-5 h-5" />
-          {showQRCode ? 'Ocultar' : 'Mostrar'} QR Code
-        </button>
-        
-        {showQRCode && (
-          <div className="mt-4 inline-block p-4 bg-white rounded-lg shadow-lg">
-            <img 
-              src="/images/qr-code.png" 
-              alt="QR Code para acessar o site" 
-              className="w-48 h-48 mx-auto"
-            />
-            <p className="text-sm text-gray-600 mt-2">
-              Tire uma foto para acessar em casa
-            </p>
-          </div>
-        )}
+        <div className="mt-6 inline-block p-4 bg-white rounded-lg shadow-lg">
+          <img 
+            src="/images/qr-code.png" 
+            alt="QR Code para acessar o site" 
+            className="w-48 h-48 mx-auto"
+          />
+          <p className="text-sm text-gray-600 mt-2">
+            Tire uma foto para acessar em casa
+          </p>
+        </div>
       </div>
       <p className="text-center text-gray-600 text-sm mt-4">
         © 2025 - Campanha de Conscientização sobre Miastenia Gravis
@@ -328,23 +318,23 @@ const MiasteniaGravisApp = () => {
             <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
               <button
                 onClick={() => navigateTo('testimonials')}
-                className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+                className="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
               >
                 <Headphones className="w-12 h-12" />
-                <span className="font-semibold text-sm">Depoimentos</span>
+                <span className="font-semibold text-sm">Conheça as histórias</span>
               </button>
 
               <button
                 onClick={() => navigateTo('quiz')}
-                className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+                className="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
               >
                 <Award className="w-12 h-12" />
-                <span className="font-semibold text-sm">Quiz</span>
+                <span className="font-semibold text-sm">Teste seus conhecimentos</span>
               </button>
 
               <button
                 onClick={() => navigateTo('share')}
-                className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+                className="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
               >
                 <MessageCircle className="w-12 h-12" />
                 <span className="font-semibold text-sm">Deixe seu Depoimento</span>
