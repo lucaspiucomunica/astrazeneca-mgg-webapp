@@ -1,5 +1,6 @@
 'use client';
 
+import { supabase } from '../lib/supabase';
 import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, User, FileText, Headphones, Home, MessageCircle, Video, ExternalLink, ArrowLeft } from 'lucide-react';
 
@@ -13,7 +14,7 @@ const MiasteniaGravisApp = () => {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
   const [testimonialData, setTestimonialData] = useState({
     nome: '',
@@ -212,14 +213,53 @@ const MiasteniaGravisApp = () => {
     setQuizCompleted(false);
   };
 
-  const handleTestimonialSubmit = () => {
+  const handleTestimonialSubmit = async () => {
+    // Validação
     if (!testimonialData.nome || !testimonialData.idade || !testimonialData.depoimento) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
-    
-    setTestimonialSubmitted(true);
-    console.log('Depoimento enviado:', testimonialData);
+  
+    setIsSubmitting(true);
+  
+    try {
+      // Preparar dados para envio
+      const dadosParaEnvio = {
+        nome: testimonialData.nome.trim(),
+        idade: parseInt(testimonialData.idade),
+        cidade: testimonialData.cidade.trim() || null,
+        depoimento: testimonialData.depoimento.trim(),
+        status: 'pendente',
+        aprovado: false
+      };
+  
+      // Enviar para Supabase
+      const { data, error } = await supabase
+        .from('depoimentos')
+        .insert([dadosParaEnvio])
+        .select();
+  
+      if (error) {
+        throw error;
+      }
+  
+      // Sucesso
+      setTestimonialSubmitted(true);
+      
+      // Limpar formulário
+      setTestimonialData({
+        nome: '',
+        idade: '',
+        cidade: '',
+        depoimento: ''
+      });
+  
+    } catch (error) {
+      console.error('Erro ao salvar depoimento:', error);
+      alert('Erro ao enviar depoimento. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleTestimonialChange = (field, value) => {
@@ -676,9 +716,14 @@ const MiasteniaGravisApp = () => {
 
                     <button
                       onClick={handleTestimonialSubmit}
-                      className="w-full bg-purple-600 text-white py-4 rounded-lg hover:bg-purple-700 transition-colors font-semibold text-lg"
+                      disabled={isSubmitting}
+                      className={`w-full py-4 rounded-lg font-semibold text-lg transition-colors ${
+                        isSubmitting 
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : 'bg-purple-600 hover:bg-purple-700'
+                      } text-white`}
                     >
-                      Enviar Depoimento
+                      {isSubmitting ? 'Enviando...' : 'Enviar Depoimento'}
                     </button>
                   </div>
                 ) : (
