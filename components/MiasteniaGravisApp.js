@@ -1,8 +1,7 @@
 'use client';
 
-import { supabase } from '../lib/supabase';
 import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, User, FileText, Headphones, Home, MessageCircle, Video, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft } from 'lucide-react';
 
 const MiasteniaGravisApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -14,15 +13,7 @@ const MiasteniaGravisApp = () => {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
-  const [testimonialData, setTestimonialData] = useState({
-    nome: '',
-    idade: '',
-    cidade: '',
-    depoimento: ''
-  });
-  const [testimonialSubmitted, setTestimonialSubmitted] = useState(false);
 
   // Refs para controlar os players de áudio e vídeo
   const audioRef = useRef(null);
@@ -213,61 +204,7 @@ const MiasteniaGravisApp = () => {
     setQuizCompleted(false);
   };
 
-  const handleTestimonialSubmit = async () => {
-    // Validação
-    if (!testimonialData.nome || !testimonialData.idade || !testimonialData.depoimento) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
-      return;
-    }
-  
-    setIsSubmitting(true);
-  
-    try {
-      // Preparar dados para envio
-      const dadosParaEnvio = {
-        nome: testimonialData.nome.trim(),
-        idade: parseInt(testimonialData.idade),
-        cidade: testimonialData.cidade.trim() || null,
-        depoimento: testimonialData.depoimento.trim(),
-        status: 'pendente',
-        aprovado: false
-      };
-  
-      // Enviar para Supabase
-      const { data, error } = await supabase
-        .from('depoimentos')
-        .insert([dadosParaEnvio])
-        .select();
-  
-      if (error) {
-        throw error;
-      }
-  
-      // Sucesso
-      setTestimonialSubmitted(true);
-      
-      // Limpar formulário
-      setTestimonialData({
-        nome: '',
-        idade: '',
-        cidade: '',
-        depoimento: ''
-      });
-  
-    } catch (error) {
-      console.error('Erro ao salvar depoimento:', error);
-      alert('Erro ao enviar depoimento. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
-  const handleTestimonialChange = (field, value) => {
-    setTestimonialData({
-      ...testimonialData,
-      [field]: value
-    });
-  };
 
   const navigateTo = (page) => {
     setCurrentPage(page);
@@ -397,7 +334,6 @@ const MiasteniaGravisApp = () => {
             <h2 className="text-2xl font-bold text-purple-800">
               {currentPage === 'testimonials' && 'Depoimentos'}
               {currentPage === 'quiz' && 'Quiz Educativo'}
-              {currentPage === 'share' && 'Compartilhe sua História'}
             </h2>
             <div className="w-20"></div>
           </div>
@@ -631,122 +567,7 @@ const MiasteniaGravisApp = () => {
               </div>
             )}
 
-            {/* Página de Deixar Depoimento */}
-            {currentPage === 'share' && (
-              <div className="space-y-6">
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-purple-800 mb-2">
-                    Compartilhe sua História
-                  </h3>
-                  <p className="text-gray-600">
-                    Seu depoimento pode inspirar outras pessoas
-                  </p>
-                </div>
 
-                {!testimonialSubmitted ? (
-                  <div className="space-y-4 max-w-2xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-gray-700 font-semibold mb-2">
-                          Nome *
-                        </label>
-                        <input
-                          type="text"
-                          value={testimonialData.nome}
-                          onChange={(e) => handleTestimonialChange('nome', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
-                          placeholder="Seu nome"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-gray-700 font-semibold mb-2">
-                          Idade *
-                        </label>
-                        <input
-                          type="number"
-                          value={testimonialData.idade}
-                          onChange={(e) => handleTestimonialChange('idade', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
-                          placeholder="Sua idade"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-700 font-semibold mb-2">
-                        Cidade/Estado
-                      </label>
-                      <input
-                        type="text"
-                        value={testimonialData.cidade}
-                        onChange={(e) => handleTestimonialChange('cidade', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
-                        placeholder="São Paulo/SP"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-700 font-semibold mb-2">
-                        Seu Depoimento *
-                      </label>
-                      <textarea
-                        value={testimonialData.depoimento}
-                        onChange={(e) => handleTestimonialChange('depoimento', e.target.value)}
-                        rows="6"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 placeholder-gray-500 text-gray-900"
-                        placeholder="Conte sua experiência com a Miastenia Gravis. Como foi o diagnóstico? Como é seu dia a dia? Que mensagem você gostaria de deixar para outras pessoas?"
-                      />
-                    </div>
-
-
-
-                    <div className="bg-blue-50 rounded-lg p-4">
-                      <p className="text-sm text-blue-800">
-                        * Campos obrigatórios. Seu depoimento passará por uma revisão antes de ser publicado.
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={handleTestimonialSubmit}
-                      disabled={isSubmitting}
-                      className={`w-full py-4 rounded-lg font-semibold text-lg transition-colors ${
-                        isSubmitting 
-                          ? 'bg-gray-400 cursor-not-allowed' 
-                          : 'bg-purple-600 hover:bg-purple-700'
-                      } text-white`}
-                    >
-                      {isSubmitting ? 'Enviando...' : 'Enviar Depoimento'}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center space-y-6 py-12">
-                    <CheckCircle className="w-24 h-24 text-green-500 mx-auto" />
-                    <h3 className="text-2xl font-bold text-green-700">
-                      Depoimento Enviado com Sucesso!
-                    </h3>
-                    <p className="text-gray-600 max-w-md mx-auto">
-                      Obrigado por compartilhar sua história. Sua experiência pode inspirar outras pessoas que vivem com Miastenia Gravis.
-                    </p>
-                    <div className="space-y-4">
-                      <button
-                        onClick={() => {
-                          setTestimonialSubmitted(false);
-                          setTestimonialData({
-                            nome: '',
-                            idade: '',
-                            cidade: '',
-                            depoimento: ''
-                          });
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-                      >
-                        Enviar Outro Depoimento
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
 
             <Footer />
           </div>
