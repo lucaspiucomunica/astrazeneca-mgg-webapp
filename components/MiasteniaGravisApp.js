@@ -355,7 +355,7 @@ const MiasteniaGravisApp = () => {
             </div>
 
             {/* Botões de Navegação estilo iOS */}
-            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+            <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
               <button
                 onClick={() => navigateTo('testimonials')}
                 className="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
