@@ -371,14 +371,6 @@ const MiasteniaGravisApp = () => {
                 <Award className="w-12 h-12" />
                 <span className="font-semibold text-sm">Teste seus conhecimentos</span>
               </button>
-
-              <button
-                onClick={() => navigateTo('share')}
-                className="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
-              >
-                <MessageCircle className="w-12 h-12" />
-                <span className="font-semibold text-sm">Deixe seu Depoimento</span>
-              </button>
             </div>
 
             <Footer />
