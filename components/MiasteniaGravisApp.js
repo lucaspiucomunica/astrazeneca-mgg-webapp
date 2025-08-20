@@ -131,6 +131,15 @@ const MiasteniaGravisApp = () => {
         heroVideoRef.current.currentTime = 0;
       }
     }
+    
+    // Reiniciar quiz quando sair da página do quiz
+    if (currentPage !== 'quiz') {
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setScore(0);
+      setQuizCompleted(false);
+    }
   }, [currentPage]);
 
   // Depoimentos fictícios com transcrições
@@ -167,37 +176,26 @@ const MiasteniaGravisApp = () => {
       question: "O que é a Miastenia Gravis?",
       options: [
         "Uma doença que afeta os ossos",
-        "Uma doença autoimune que causa fraqueza muscular",
+        "Uma doença rara que causa fraqueza muscular",
         "Uma infecção viral",
         "Uma doença hereditária do sangue"
       ],
       correct: 1,
-      explanation: "A Miastenia Gravis é uma doença autoimune que afeta a comunicação entre nervos e músculos, causando fraqueza muscular."
+      explanation: "<p style='margin-bottom: 12px'>A Miastenia Gravis é uma doença rara que interfere na comunicação entre nervos e músculos, causando fraqueza muscular intensa e cansaço<sup>1</sup>.</p><p>Esses sintomas podem dificultar mesmo as tarefas mais simples do dia a dia, como escovar os dentes, pentear o cabelo e abrir um guarda-chuva​<sup>1–3​</sup>.</p>"
     },
     {
-      question: "Qual é um dos principais sintomas da Miastenia Gravis?",
+      question: "Além da fraqueza muscular, quais outros principais sintomas a Miastenia Gravis pode causar?",
       options: [
-        "Febre alta constante",
+        "Febre alta constante e enjoo",
         "Visão dupla e pálpebras caídas",
-        "Dor nas articulações",
-        "Perda de memória"
+        "Dor nas articulações e tontura",
+        "Perda de memória e confusão mental"
       ],
       correct: 1,
-      explanation: "Problemas oculares como visão dupla (diplopia) e pálpebras caídas (ptose) são sintomas característicos da MG."
+      explanation: "<p>Problemas oculares como visão dupla (diplopia) e pálpebras caídas (ptose) são sintomas característicos da Miastenia Gravis<sup>2</sup>.</p>"
     },
     {
-      question: "A Miastenia Gravis tem tratamento?",
-      options: [
-        "Não, é uma doença sem tratamento",
-        "Sim, mas apenas com cirurgia",
-        "Sim, com medicamentos e acompanhamento médico",
-        "Apenas com fisioterapia"
-      ],
-      correct: 2,
-      explanation: "A MG tem tratamento! Medicamentos, terapias e acompanhamento médico podem controlar os sintomas efetivamente."
-    },
-    {
-      question: "Qual profissional é essencial no diagnóstico da MG?",
+      question: "Qual profissional é essencial no diagnóstico da Miastenia Gravis?",
       options: [
         "Dermatologista",
         "Neurologista",
@@ -205,18 +203,18 @@ const MiasteniaGravisApp = () => {
         "Ortopedista"
       ],
       correct: 1,
-      explanation: "O neurologista é o especialista que diagnostica e trata a Miastenia Gravis."
+      explanation: "<p>Tanto o diagnóstico quanto o acompanhamento ao longo do tempo costuma ser feito por um neurologista — preferencialmente especializado em doenças neuromusculares <sup>1,2,4.</p>"
     },
     {
-      question: "Pessoas com MG podem levar uma vida normal?",
+      question: "Pessoas com Miastenia Gravis podem levar uma vida ativa?",
       options: [
         "Não, ficam sempre acamadas",
-        "Sim, com tratamento adequado",
+        "Sim, com diagnóstico e manejo adequados",
         "Apenas algumas pessoas",
         "Somente com transplante"
       ],
       correct: 1,
-      explanation: "Com tratamento adequado e acompanhamento médico, a maioria das pessoas com MG pode levar uma vida produtiva e satisfatória!"
+      explanation: "<p>O manejo adequado permite que pessoas com Miastenia Gravis vivam com autonomia e qualidade de vida, já que gerencia os sintomas e busca a estabilização. Isso significa poder avistar novos horizontes e retomar planos <sup>1,2,4,6</sup>.</p>"
     }
   ];
 
@@ -718,9 +716,10 @@ const MiasteniaGravisApp = () => {
                               ? 'bg-green-50 border border-green-200'
                               : 'bg-blue-50 border border-blue-200'
                           }`}>
-                            <p className="text-sm text-gray-700">
-                              {quizQuestions[currentQuestionIndex].explanation}
-                            </p>
+                            <p 
+                              className="text-sm text-gray-700"
+                              dangerouslySetInnerHTML={{ __html: quizQuestions[currentQuestionIndex].explanation }}
+                            />
                           </div>
                           <button
                             onClick={handleNextQuestion}
@@ -747,7 +746,7 @@ const MiasteniaGravisApp = () => {
                         {score === quizQuestions.length
                           ? 'Parabéns! Você está bem informado sobre a Miastenia Gravis!'
                           : score >= quizQuestions.length * 0.6
-                          ? 'Muito bem! Você tem um bom conhecimento sobre a MG.'
+                          ? 'Muito bem! Você tem um bom conhecimento sobre a Miastenia Gravis.'
                           : 'Continue aprendendo! O conhecimento é fundamental para o cuidado.'}
                       </p>
                       <button
