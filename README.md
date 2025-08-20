@@ -7,14 +7,17 @@ Aplicação web interativa para conscientização sobre Miastenia Gravis, desenv
 Esta aplicação oferece uma experiência imersiva para educar sobre a Miastenia Gravis, incluindo:
 - Experiência interativa simulando os sintomas da doença
 - Depoimentos em áudio e vídeo de pacientes
-- Quiz educativo sobre a condição
-- Informações sobre associações de apoio
+- Quiz educativo sobre a condição com sistema de tracking
+- Informações sobre associações de apoio (AMMI, ABRAMI, AFAG, Casa Hunter)
 - Sistema de avaliação da experiência
+- Rastreamento de navegação e analytics integrado
 
 ## 🚀 Tecnologias Utilizadas
 
-- **Frontend:** Next.js 15, React 19, Tailwind CSS
+- **Frontend:** Next.js 15, React 19, Tailwind CSS 4
 - **Backend:** Next.js API Routes
+- **Banco de Dados:** MongoDB Atlas
+- **Analytics:** Google Tag Manager integration
 - **Ícones:** Lucide React
 - **Deploy:** Vercel (recomendado)
 
@@ -53,9 +56,11 @@ npm run dev
 - **Avaliação:** Sistema de feedback sobre a experiência
 
 ### Para Administradores
-- **Painel de Estatísticas:** Acesse `/admin` para ver dados das avaliações
-- **APIs:** Endpoints para gerenciar dados
-- **Monitoramento:** Acompanhe o engajamento dos usuários
+- **Painel de Estatísticas:** Acesse `/admin` para ver dados completos
+- **Dashboard Unificado:** Avaliações, quiz e navegação em uma interface
+- **APIs:** Endpoints para gerenciar todos os tipos de dados
+- **Analytics:** Google Tag Manager integration para tracking avançado
+- **Monitoramento:** Acompanhe o engajamento dos usuários em tempo real
 
 ## 🔧 Estrutura do Projeto
 
@@ -63,30 +68,52 @@ npm run dev
 miastenia-gravis-app/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API Routes
-│   │   └── ratings/       # Endpoints para avaliações
+│   │   ├── navigation-events/ # Tracking de navegação
+│   │   ├── quiz-events/   # Tracking do quiz
+│   │   ├── ratings/       # Sistema de avaliações
+│   │   └── test-mongodb/  # Teste de conexão BD
 │   ├── admin/             # Painel administrativo
 │   └── page.js            # Página principal
 ├── components/            # Componentes React
-│   ├── MiasteniaGravisApp.js
-│   └── RatingStats.js
+│   ├── MiasteniaGravisApp.js  # App principal
+│   ├── NavigationStats.js     # Stats de navegação
+│   ├── QuizStats.js          # Stats do quiz
+│   └── RatingStats.js        # Stats das avaliações
+├── lib/                   # Bibliotecas
+│   ├── mongodb.js         # Conexão MongoDB
+│   └── datalayer.js       # Integração GTM
 ├── public/                # Arquivos estáticos
 │   ├── audio/             # Depoimentos em áudio
 │   ├── video/             # Vídeos
-│   └── images/            # Imagens
+│   └── images/            # Imagens e logos WebP
 └── scripts/               # Scripts utilitários
     └── test-mongodb.js
 ```
 
 ## 🌐 APIs Disponíveis
 
+### Sistema de Avaliações
 - `GET /api/ratings` - Listar todas as avaliações
 - `POST /api/ratings` - Salvar nova avaliação
 - `GET /api/ratings/stats` - Estatísticas das avaliações
 
+### Sistema do Quiz
+- `GET /api/quiz-events` - Listar eventos do quiz
+- `POST /api/quiz-events` - Salvar evento do quiz
+- `GET /api/quiz-events/stats` - Estatísticas do quiz
+
+### Sistema de Navegação
+- `GET /api/navigation-events` - Listar eventos de navegação
+- `POST /api/navigation-events` - Salvar evento de navegação
+- `GET /api/navigation-events/stats` - Estatísticas de navegação
+
+### Utilitários
+- `GET /api/test-mongodb` - Testar conexão MongoDB
+
 ## 📱 Páginas
 
 - `/` - Página principal com experiência imersiva
-- `/admin` - Painel de administração com estatísticas
+- `/admin` - Dashboard administrativo com estatísticas unificadas
 
 ## 🚀 Deploy
 
@@ -102,11 +129,15 @@ A aplicação pode ser deployada em qualquer provedor que suporte Next.js.
 ## 🔒 Segurança
 
 - Validação de dados nas APIs
+- Conexão segura com MongoDB Atlas
 - Fallback para localStorage em caso de falha de conexão
 
 ## 📈 Monitoramento
 
-- Estatísticas em tempo real no painel administrativo
+- Dashboard unificado com estatísticas em tempo real
+- Integração com Google Tag Manager para analytics avançado
+- Tracking de navegação, quiz e avaliações
+- Sistema de heartbeat para modo quiosque
 - Logs de erro no console
 - Métricas de engajamento dos usuários
 

@@ -27,6 +27,8 @@ Esta é uma aplicação Next.js 15 usando arquitetura App Router para uma campan
 ```
 app/
 ├── api/
+│   ├── navigation-events/ # APIs do sistema de navegação (GET/POST)
+│   │   └── stats/        # Endpoint de estatísticas de navegação
 │   ├── quiz-events/      # APIs do sistema de quiz (GET/POST)
 │   │   └── stats/        # Endpoint de estatísticas do quiz
 │   ├── ratings/          # APIs do sistema de avaliação (GET/POST)
@@ -37,6 +39,7 @@ app/
 
 components/
 ├── MiasteniaGravisApp.js # Componente interativo principal
+├── NavigationStats.js   # Componente de exibição de estatísticas de navegação
 ├── QuizStats.js         # Componente de exibição de estatísticas do quiz
 └── RatingStats.js        # Componente de exibição de estatísticas de avaliação
 
@@ -77,9 +80,18 @@ public/
 - Coleta dados de pontuação e abandono por pergunta
 - Estatísticas detalhadas disponíveis no dashboard admin
 
+**Sistema de Captura de Navegação**:
+- Rastreia eventos de navegação entre páginas (depoimentos, associações, quiz, mecanismo da doença)
+- Armazena eventos no MongoDB via `/api/navigation-events`
+- Coleta dados de visualizações de página e interações
+- Dashboard com estatísticas de acesso por página
+
 **Integração DataLayer**:
-- Rastreia eventos `immersion_rating`
-- Inclui rating, categoria, user agent, resolução de tela
+- Rastreia eventos `immersion_rating` (avaliações)
+- Rastreia eventos `quiz_interaction` (interações do quiz)
+- Rastreia eventos `page_navigation` (navegação entre páginas)
+- Rastreia eventos `kiosk_event` e `kiosk_heartbeat` (modo quiosque)
+- Inclui dados de contexto: user agent, resolução de tela, idioma
 - Ver DATALAYER_SETUP.md para configuração GTM
 
 ### Schema do Banco de Dados
@@ -103,6 +115,18 @@ Coleção MongoDB: `quiz_events`
 }
 ```
 
+Coleção MongoDB: `navigation_events`
+```javascript
+{
+  eventType: string,     // 'page_view', 'page_enter', 'page_exit'
+  page: string,          // 'home', 'depoimentos', 'disease-mechanism', 'quiz', 'associacoes'
+  timestamp: string,     // Timestamp ISO
+  data: object,          // Dados adicionais do evento
+  userAgent: string,     // User agent do navegador
+  createdAt: Date       // Timestamp MongoDB
+}
+```
+
 ### Configuração de Ambiente
 
 Variáveis de ambiente obrigatórias:
@@ -121,6 +145,11 @@ Variáveis de ambiente obrigatórias:
 - `POST /api/quiz-events` - Salva novo evento do quiz (eventType obrigatório)
 - `GET /api/quiz-events/stats` - Estatísticas detalhadas do quiz (taxas, pontuações, abandono)
 
+**Sistema de Navegação:**
+- `GET /api/navigation-events` - Busca todos os eventos de navegação
+- `POST /api/navigation-events` - Salva novo evento de navegação (eventType e page obrigatórios)
+- `GET /api/navigation-events/stats` - Estatísticas de acesso por página
+
 **Utilitários:**
 - `GET /api/test-mongodb` - Teste de conexão MongoDB
 
@@ -137,7 +166,7 @@ Variáveis de ambiente obrigatórias:
 - Depoimentos de pacientes em `public/audio/`
 - Vídeos educativos em `public/video/`
 - QR codes e thumbnails em `public/images/`
-- Logos de associações parceiras em `public/images/` (AMMI, ABRAMI, AFAG, Casa Hunter)
+- Logos de associações parceiras em `public/images/` (AMMI, ABRAMI, AFAG, Casa Hunter) - formato WebP otimizado
 
 ### Testes
 
@@ -146,7 +175,7 @@ Conexão MongoDB pode ser testada com:
 npm run test:mongodb
 ```
 
-Este projeto foca na acessibilidade e educação do usuário sobre Miastenia Gravis através de experiências interativas, depoimentos, quiz educativo e recursos de apoio abrangentes. O dashboard administrativo fornece insights detalhados sobre o engajamento dos usuários tanto no sistema de avaliações quanto no quiz educativo.
+Este projeto foca na acessibilidade e educação do usuário sobre Miastenia Gravis através de experiências interativas, depoimentos, quiz educativo e recursos de apoio abrangentes. O dashboard administrativo fornece insights detalhados sobre o engajamento dos usuários em três sistemas principais: avaliações, quiz educativo e navegação entre páginas. O sistema inclui otimizações para modo quiosque com heartbeat automático, detecção de inatividade e integração avançada com Google Tag Manager.
 
 - Nunca use emojis no projeto em logs, outputs, etc
 - Linguagem oficial: Português-BR

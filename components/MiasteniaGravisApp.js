@@ -186,28 +186,28 @@ const MiasteniaGravisApp = () => {
   const testimonials = [
     {
       id: 1,
-      name: "Maria Silva",
-      age: 45,
+      name: "Guilherme",
+      description: "Paciente de Miastenia Gravis",
       type: "audio",
-      mediaUrl: "/audio/depoimento1.mp3",
+      mediaUrl: "/audio/guilherme.mp3",
       transcription: "Convivo com a Miastenia Gravis há 5 anos. No início foi difícil, mas com o tratamento adequado e apoio da família, hoje levo uma vida praticamente normal. O mais importante é não desistir e seguir as orientações médicas. Aprendi que cada dia é uma vitória e que somos mais fortes do que imaginamos."
     },
     {
       id: 2,
-      name: "Rita",
-      age: 38,
-      type: "video",
-      mediaUrl: "/video/teaser.mp4",
-      transcription: "O diagnóstico precoce fez toda a diferença na minha vida. Hoje pratico exercícios leves, trabalho normalmente e cuido da minha família. A Miastenia Gravis não define quem eu sou. É parte da minha jornada, mas não é meu destino. Com o apoio médico certo, consegui retomar minhas atividades."
+      name: "Kenia",
+      description: "Paciente de Miastenia Gravis",
+      type: "audio",
+      mediaUrl: "/audio/kenia.mp3",
+      transcription: "Convivo com a Miastenia Gravis há 5 anos. No início foi difícil, mas com o tratamento adequado e apoio da família, hoje levo uma vida praticamente normal. O mais importante é não desistir e seguir as orientações médicas. Aprendi que cada dia é uma vitória e que somos mais fortes do que imaginamos."
     },
     {
       id: 3,
-      name: "Ana Costa",
-      age: 52,
-      type: "audio",
-      mediaUrl: "/audio/depoimento3.mp3",
-      transcription: "Aprendi a reconhecer meus limites e a importância do descanso. Com medicação adequada e acompanhamento regular, consigo manter minha qualidade de vida. Cada pequena vitória é uma grande conquista. Hoje valorizo mais os momentos simples e entendo que cuidar de mim é fundamental."
-    }
+      name: "Gabriel, Lua e Tayná",
+      description: "Pacientes de Miastenia Gravis",
+      type: "video",
+      mediaUrl: "/video/miastenia-gravis.webm",
+      transcription: "O diagnóstico precoce fez toda a diferença na minha vida. Hoje pratico exercícios leves, trabalho normalmente e cuido da minha família. A Miastenia Gravis não define quem eu sou. É parte da minha jornada, mas não é meu destino. Com o apoio médico certo, consegui retomar minhas atividades."
+    },
   ];
 
   // Perguntas do Quiz
@@ -703,31 +703,26 @@ const MiasteniaGravisApp = () => {
               <div className="space-y-6">
                 <div className="text-center mb-6">
                   <h3 className="text-xl font-bold text-purple-800 mb-2">
-                  Saiba como procurar apoio
+                  Histórias de superação
                   </h3>
                   <p className="text-gray-600">
-                  Conheça as associações que oferecem suporte aos pacientes e seus familiares:
+                  Ouça e assista depoimentos de pessoas que convivem com a Miastenia Gravis
                   </p>
                 </div>
 
                 <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                        {testimonials[currentTestimonial].name.charAt(0)}
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-bold text-purple-800">
-                          {testimonials[currentTestimonial].name}
-                        </h4>
-                        <p className="text-gray-600 flex items-center gap-2">
-                          {testimonials[currentTestimonial].age} anos
-                          {testimonials[currentTestimonial].type === 'video' ? 
-                            <Video className="w-4 h-4" /> : 
-                            <Volume2 className="w-4 h-4" />
-                          }
-                        </p>
-                      </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-purple-800">
+                        {testimonials[currentTestimonial].name}
+                      </h4>
+                      <p className="text-gray-600 flex items-center gap-2">
+                        {testimonials[currentTestimonial].description}
+                        {testimonials[currentTestimonial].type === 'video' ? 
+                          <Video className="w-4 h-4" /> : 
+                          <Volume2 className="w-4 h-4" />
+                        }
+                      </p>
                     </div>
                     <button
                       onClick={togglePlayPause}
