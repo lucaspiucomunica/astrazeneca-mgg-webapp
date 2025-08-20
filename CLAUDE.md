@@ -26,14 +26,19 @@ Esta é uma aplicação Next.js 15 usando arquitetura App Router para uma campan
 
 ```
 app/
-├── api/ratings/           # APIs do sistema de avaliação (GET/POST)
-│   └── stats/            # Endpoint de estatísticas de avaliação
+├── api/
+│   ├── quiz-events/      # APIs do sistema de quiz (GET/POST)
+│   │   └── stats/        # Endpoint de estatísticas do quiz
+│   ├── ratings/          # APIs do sistema de avaliação (GET/POST)
+│   │   └── stats/        # Endpoint de estatísticas de avaliação
+│   └── test-mongodb/     # Endpoint de teste da conexão MongoDB
 ├── admin/                # Dashboard administrativo para ver estatísticas
 └── layout.js, page.js    # Layout raiz e página inicial
 
 components/
 ├── MiasteniaGravisApp.js # Componente interativo principal
-└── RatingStats.js        # Componente de exibição de estatísticas
+├── QuizStats.js         # Componente de exibição de estatísticas do quiz
+└── RatingStats.js        # Componente de exibição de estatísticas de avaliação
 
 lib/
 ├── mongodb.js           # Conexão MongoDB com tratamento dev/prod
@@ -42,10 +47,13 @@ lib/
 config/
 └── mongodb-config.example.js  # Template de configuração MongoDB
 
+scripts/
+└── test-mongodb.js      # Script de teste da conexão MongoDB
+
 public/
 ├── audio/               # Depoimentos de pacientes (MP3)
 ├── video/               # Vídeos promocionais (MP4)
-└── images/              # Assets estáticos
+└── images/              # Assets estáticos e logos de associações
 ```
 
 ### Componentes Principais
@@ -63,6 +71,12 @@ public/
 - Rastreia eventos via DataLayer para GTM
 - Estatísticas admin disponíveis em `/admin`
 
+**Sistema de Quiz Educativo**:
+- Rastreia eventos do quiz (início, abandono, conclusão, reinício)
+- Armazena eventos no MongoDB via `/api/quiz-events`
+- Coleta dados de pontuação e abandono por pergunta
+- Estatísticas detalhadas disponíveis no dashboard admin
+
 **Integração DataLayer**:
 - Rastreia eventos `immersion_rating`
 - Inclui rating, categoria, user agent, resolução de tela
@@ -79,6 +93,16 @@ Coleção MongoDB: `ratings`
 }
 ```
 
+Coleção MongoDB: `quiz_events`
+```javascript
+{
+  eventType: string,     // 'quiz_started', 'quiz_abandoned', 'quiz_completed', 'quiz_restarted'
+  timestamp: string,     // Timestamp ISO
+  data: object,          // Dados específicos do evento (score, questionIndex, etc.)
+  createdAt: Date       // Timestamp MongoDB
+}
+```
+
 ### Configuração de Ambiente
 
 Variáveis de ambiente obrigatórias:
@@ -87,9 +111,17 @@ Variáveis de ambiente obrigatórias:
 
 ### Endpoints da API
 
+**Sistema de Avaliações:**
 - `GET /api/ratings` - Busca todas as avaliações com metadados
 - `POST /api/ratings` - Salva nova avaliação (campo rating obrigatório)
 - `GET /api/ratings/stats` - Estatísticas e agregações das avaliações
+
+**Sistema de Quiz:**
+- `GET /api/quiz-events` - Busca todos os eventos do quiz
+- `POST /api/quiz-events` - Salva novo evento do quiz (eventType obrigatório)
+- `GET /api/quiz-events/stats` - Estatísticas detalhadas do quiz (taxas, pontuações, abandono)
+
+**Utilitários:**
 - `GET /api/test-mongodb` - Teste de conexão MongoDB
 
 ### Notas de Desenvolvimento
@@ -105,6 +137,7 @@ Variáveis de ambiente obrigatórias:
 - Depoimentos de pacientes em `public/audio/`
 - Vídeos educativos em `public/video/`
 - QR codes e thumbnails em `public/images/`
+- Logos de associações parceiras em `public/images/` (AMMI, ABRAMI, AFAG, Casa Hunter)
 
 ### Testes
 
@@ -113,7 +146,7 @@ Conexão MongoDB pode ser testada com:
 npm run test:mongodb
 ```
 
-Este projeto foca na acessibilidade e educação do usuário sobre Miastenia Gravis através de experiências interativas, depoimentos e recursos de apoio abrangentes.
+Este projeto foca na acessibilidade e educação do usuário sobre Miastenia Gravis através de experiências interativas, depoimentos, quiz educativo e recursos de apoio abrangentes. O dashboard administrativo fornece insights detalhados sobre o engajamento dos usuários tanto no sistema de avaliações quanto no quiz educativo.
 
 - Nunca use emojis no projeto em logs, outputs, etc
 - Linguagem oficial: Português-BR

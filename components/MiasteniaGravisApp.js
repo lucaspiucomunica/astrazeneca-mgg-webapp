@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart } from 'lucide-react';
-import { trackRating, initializeDataLayer } from '../lib/datalayer';
+import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
+import { trackRating, trackQuizEvent, initializeDataLayer } from '../lib/datalayer';
 
 const MiasteniaGravisApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -118,8 +118,31 @@ const MiasteniaGravisApp = () => {
 
   // Efeito para inicializar o DataLayer e pausar reprodução ao sair da página
   useEffect(() => {
-    // Inicializar DataLayer quando o componente montar
-    initializeDataLayer();
+    // Inicializar DataLayer com configurações para modo quiosque
+    initializeDataLayer({
+      enableHeartbeat: true,
+      heartbeatInterval: 25, // 25 minutos
+      enableIdleDetection: true,
+      idleTimeout: 10, // 10 minutos de inatividade
+      googleAnalyticsId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null,
+      resetCallback: () => {
+        // Reset do app após inatividade - volta para home
+        setCurrentPage('home');
+        setCurrentTestimonial(0);
+        setIsPlaying(false);
+        setShowTranscription(false);
+        setCurrentQuestionIndex(0);
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setScore(0);
+        setQuizCompleted(false);
+        setIsHeroVideoPlaying(false);
+        setShowRating(false);
+        setRatingSubmitted(false);
+        setSelectedRating(null);
+        stopCurrentMedia();
+      }
+    });
     
     if (currentPage !== 'testimonials') {
       stopCurrentMedia();
@@ -130,6 +153,14 @@ const MiasteniaGravisApp = () => {
         heroVideoRef.current.pause();
         heroVideoRef.current.currentTime = 0;
       }
+    }
+    
+    // Tracking do início do quiz
+    if (currentPage === 'quiz' && currentQuestionIndex === 0 && !quizCompleted && !showResult) {
+      saveQuizEvent('quiz_started', {
+        totalQuestions: quizQuestions.length,
+        startTime: new Date().toISOString()
+      });
     }
     
     // Reiniciar quiz quando sair da página do quiz
@@ -234,15 +265,64 @@ const MiasteniaGravisApp = () => {
       setShowResult(false);
     } else {
       setQuizCompleted(true);
+      
+      // Tracking de conclusão do quiz
+      // score já está atualizado pelo handleAnswerSelect, não precisa somar +1 novamente
+      saveQuizEvent('quiz_completed', {
+        score: score,
+        totalQuestions: quizQuestions.length,
+        percentage: Math.round((score / quizQuestions.length) * 100),
+        completionTime: new Date().toISOString()
+      });
     }
   };
 
   const resetQuiz = () => {
+    // Tracking de refazer quiz
+    saveQuizEvent('quiz_restarted', {
+      previousScore: score,
+      totalQuestions: quizQuestions.length,
+      previousPercentage: Math.round((score / quizQuestions.length) * 100),
+      restartTime: new Date().toISOString()
+    });
+    
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setShowResult(false);
     setScore(0);
     setQuizCompleted(false);
+  };
+
+  // Função para salvar eventos do quiz
+  const saveQuizEvent = async (eventType, eventData = {}) => {
+    // Disparar evento no DataLayer
+    trackQuizEvent(eventType, eventData);
+    
+    try {
+      // Salvar no MongoDB via API
+      const response = await fetch('/api/quiz-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventType: eventType,
+          timestamp: new Date().toISOString(),
+          data: eventData
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`📋 Evento do quiz salvo no MongoDB: ${eventType}`, result.event);
+        console.log('📊 ID do evento:', result.eventId);
+      } else {
+        console.error(`❌ Erro ao salvar evento ${eventType} no MongoDB:`, result.message);
+      }
+    } catch (error) {
+      console.error(`❌ Erro ao conectar com a API para evento ${eventType}:`, error);
+    }
   };
 
   // Função para lidar com a avaliação
@@ -343,6 +423,16 @@ const MiasteniaGravisApp = () => {
 
 
   const navigateTo = (page) => {
+    // Tracking de abandono do quiz se sair da página quiz sem completar
+    if (currentPage === 'quiz' && page !== 'quiz' && !quizCompleted) {
+      saveQuizEvent('quiz_abandoned', {
+        questionIndex: currentQuestionIndex,
+        totalQuestions: quizQuestions.length,
+        currentScore: score,
+        timeSpent: null // Poderia calcular tempo se tivéssemos startTime em state
+      });
+    }
+    
     setCurrentPage(page);
     window.scrollTo(0, 0);
   };
@@ -424,9 +514,27 @@ const MiasteniaGravisApp = () => {
         </div>
       </div>
 
+      {/* Seção de Referências */}
       <div className="mt-8 border-t pt-6 border-gray-200">
-      <p className="text-center text-gray-600 text-sm mt-4">
-        © 2025 - Campanha de Conscientização sobre Miastenia Gravis
+        <h3 className="text-lg font-bold text-purple-800 mb-4 text-left">
+          Referências
+        </h3>
+        <div className="text-xs text-gray-600 space-y-2 max-w-4xl mx-auto">
+          <p>1. Ministério da Saúde. Ministério da Se - PORTARIA CONJUNTA No 11, DE 23 DE MAIO DE 2022. https://bvsms.saude.gov.br/bvs/saudelegis/saes/2022/poc0011_27_05_2022.html.</p>
+          <p>2. Suresh, A. B.Asuncion, R. M. D. Myasthenia Gravis. StatPearls (2023).</p>
+          <p>3. Cunha, F. M. B., Scola, R. H. & Werk, L. C. Myasthenia gravis: Historical aspects. Arq Neuropsiquiatr 57, 531–536 (1999).</p>
+          <p>4. GilhuN. E. et al. Myasthenia gravis. Nat Rev Dis Primers 5, (2019).</p>
+          <p>5. Mukharesh, L. & Kaminski, H. J. A Neurologist's Perspective on Understanding Myhenia Gravis: Clinical Perspectives of Etiologic Factors, Diagnosis, and Preoperative Treatment. Thorac Surg Clin 29, 133–141 (2019).</p>
+          <p>6. Uzawa, At al. Minimal symptom expression achievement over time in generalized myasthenia gravis. Acta Neurol Belg 123, 979–982 (2023).</p>
+        </div>
+      </div>
+
+      <div className="mt-8 border-t pt-6 border-gray-200">
+      <p className="text-center text-xs text-gray-600 text-sm">
+      BR-43582. Material destinado ao público geral. Agosto/2025
+      </p>
+      <p className="text-center text-xs text-gray-600 text-sm mt-4">
+      © AstraZeneca 2025. Todos os Direitos Reservados.
       </p>
       </div>
     </div>
@@ -476,13 +584,21 @@ const MiasteniaGravisApp = () => {
             </div>
 
             {/* Botões de Navegação estilo iOS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
               <button
                 onClick={() => navigateTo('testimonials')}
                 className="flex flex-col items-center justify-center gap-3 p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
               >
                 <Headphones className="w-8 h-8" />
                 <span className="font-semibold text-sm">Conheça histórias de pacientes (em áudio e vídeo)</span>
+              </button>
+
+              <button
+                onClick={() => navigateTo('disease-mechanism')}
+                className="flex flex-col items-center justify-center gap-3 p-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+              >
+                <Activity className="w-8 h-8" />
+                <span className="font-semibold text-sm">Como a Miastenia Gravis age</span>
               </button>
 
               <button
@@ -525,6 +641,7 @@ const MiasteniaGravisApp = () => {
             </button>
             <h2 className="text-2xl font-bold text-purple-800">
               {currentPage === 'testimonials' && 'Depoimentos'}
+              {currentPage === 'disease-mechanism' && 'Como a Miastenia Gravis Age'}
               {currentPage === 'quiz' && 'Quiz Educativo'}
               {currentPage === 'associations' && 'Associações de Apoio'}
             </h2>
@@ -646,6 +763,75 @@ const MiasteniaGravisApp = () => {
               </div>
             )}
 
+            {/* Página Como a Miastenia Gravis Age */}
+            {currentPage === 'disease-mechanism' && (
+              <div className="space-y-6">
+                <div className="text-center mb-8">
+                  <h3 className="text-xl font-bold text-purple-800 mb-2">
+                    Como a Miastenia Gravis Age
+                  </h3>
+                  <p className="text-gray-600">
+                    Entenda como a doença afeta a comunicação entre nervos e músculos
+                  </p>
+                </div>
+
+                {/* Cards Conectados */}
+                <div className="space-y-6">
+                  {/* Card 1 - Funcionamento Normal */}
+                  <div className="bg-gradient-to-r from-green-100 to-green-50 rounded-xl p-6 border-l-4 border-green-500">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-green-500 rounded-full p-3 flex-shrink-0">
+                        <MessageCircle className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-gray-700 leading-relaxed">
+                        Nosso corpo precisa de uma boa comunicação entre os nervos e os músculos para funcionar direitinho e quem faz esse papel de mensageiro é a acetilcolina, um neurotransmissor essencial nessa conversa.<sup>6</sup>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seta de conexão */}
+                  <div className="flex justify-center">
+                    <ArrowDown className="w-8 h-8 text-orange-500" />
+                  </div>
+
+                  {/* Card 2 - O que acontece na MG */}
+                  <div className="bg-gradient-to-r from-orange-100 to-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-orange-500 rounded-full p-3 flex-shrink-0">
+                        <Shield className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-gray-700 leading-relaxed">
+                        Na Miastenia Gravis, o organismo acaba produzindo anticorpos que atacam justamente os receptores de acetilcolina, dificultando essa comunicação. Isso atrapalha a contração dos músculos e causa os principais sintomas da doença: fraqueza e cansaço.<sup>6</sup>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seta de conexão */}
+                  <div className="flex justify-center">
+                    <ArrowDown className="w-8 h-8 text-red-500" />
+                  </div>
+
+                  {/* Card 3 - Resultado: Sintomas */}
+                  <div className="bg-gradient-to-r from-red-100 to-red-50 rounded-xl p-6 border-l-4 border-red-500">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-red-500 rounded-full p-3 flex-shrink-0">
+                        <AlertTriangle className="w-8 h-8 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-gray-700 leading-relaxed">
+                        Anticorpos são moléculas que o corpo fabrica para se defender de vírus e bactérias. Mas em doenças autoimunes, como a Miastenia Gravis, o sistema de defesa se confunde e passa a atacar partes saudáveis do próprio corpo — esses são os chamados autoanticorpos.<sup>3,6</sup>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Página do Quiz */}
             {currentPage === 'quiz' && (
               <div className="space-y-6">
@@ -685,14 +871,14 @@ const MiasteniaGravisApp = () => {
                             key={index}
                             onClick={() => handleAnswerSelect(index)}
                             disabled={showResult}
-                            className={`w-full text-left p-4 rounded-lg transition-all ${
+                            className={`w-full text-left p-4 rounded-lg ${
                               showResult
                                 ? index === quizQuestions[currentQuestionIndex].correct
                                   ? 'bg-green-100 border-2 border-green-500'
                                   : selectedAnswer === index
                                   ? 'bg-red-100 border-2 border-red-500'
-                                  : 'bg-gray-100 opacity-50'
-                                : 'bg-white hover:bg-purple-50 border-2 border-transparent hover:border-purple-300'
+                                  : 'bg-gray-100 opacity-50 border-2 border-transparent'
+                                : 'bg-white hover:bg-purple-50 border-2 border-transparent hover:border-purple-300 transition-colors'
                             }`}
                           >
                             <div className="flex items-center justify-between">
@@ -776,13 +962,20 @@ const MiasteniaGravisApp = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    {associations.map((association) => (
                      <div key={association.id} className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6 hover:shadow-lg transition-all">
-                       <div className="flex items-start gap-4 mb-4">
-                         {/* Espaço reservado para logo */}
-                         <div className="w-16 h-16 bg-white bg-opacity-50 rounded-lg flex items-center justify-center border-2 border-dashed border-purple-300">
-                           <span className="text-purple-600 text-xs font-medium">LOGO</span>
+                       <div className="flex flex-col items-center mb-4">
+                         {/* Logo da associação */}
+                         <div className="w-40 h-28 bg-white rounded-lg flex items-center justify-center p-4 mb-3">
+                           <img 
+                             src={`/images/logo-${association.name === 'Casa Hunter' ? 'casahunter' : 
+                                               association.name === 'AFAG Brasil' ? 'afag' : 
+                                               association.name === 'ABRAMI' ? 'abrami' : 
+                                               association.name === 'AMMI' ? 'AMMI' : 'casahunter'}.webp`}
+                             alt={`Logo ${association.name}`}
+                             className="max-w-full max-h-full object-contain"
+                           />
                          </div>
                          
-                                                   <div className="flex-1">
+                         <div className="text-center">
                             <h4 className="text-xl font-bold text-purple-800 mb-1">
                               {association.name}
                             </h4>
@@ -797,9 +990,12 @@ const MiasteniaGravisApp = () => {
                        <div className="space-y-3">
                          {/* Telefones */}
                          {association.phones.length > 0 && (
-                           <div className="flex items-center gap-2">
-                             <Phone className="w-4 h-4 text-purple-600" />
-                             <div className="flex flex-wrap gap-2">
+                           <div className="flex flex-col items-center gap-2">
+                             <div className="flex items-center gap-2">
+                               <Phone className="w-4 h-4 text-purple-600" />
+                               <span className="text-sm text-gray-600 font-medium">Telefone</span>
+                             </div>
+                             <div className="flex flex-wrap justify-center gap-2">
                                {association.phones.map((phone, index) => (
                                  <span
                                    key={index}
@@ -814,9 +1010,12 @@ const MiasteniaGravisApp = () => {
 
                          {/* Email */}
                          {association.email && (
-                           <div className="flex items-center gap-2">
-                             <Mail className="w-4 h-4 text-purple-600" />
-                             <span className="text-sm text-gray-700 font-medium">
+                           <div className="flex flex-col items-center gap-2">
+                             <div className="flex items-center gap-2">
+                               <Mail className="w-4 h-4 text-purple-600" />
+                               <span className="text-sm text-gray-600 font-medium">E-mail</span>
+                             </div>
+                             <span className="text-sm text-gray-700 font-medium text-center">
                                {association.email}
                              </span>
                            </div>
@@ -824,8 +1023,11 @@ const MiasteniaGravisApp = () => {
 
                          {/* Instagram */}
                          {association.instagram && (
-                           <div className="flex items-center gap-2">
-                             <Instagram className="w-4 h-4 text-purple-600" />
+                           <div className="flex flex-col items-center gap-2">
+                             <div className="flex items-center gap-2">
+                               <Instagram className="w-4 h-4 text-purple-600" />
+                               <span className="text-sm text-gray-600 font-medium">Instagram</span>
+                             </div>
                              <span className="text-sm text-gray-700 font-medium">
                                @{association.instagram.split('/')[1]}
                              </span>

@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # /public/video/teaser.mp4
+GA_GTM_SETUP.md
+DATALAYER_SETUP.md
+CLAUDE.md
