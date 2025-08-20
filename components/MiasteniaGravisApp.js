@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
-import { trackRating, trackQuizEvent, initializeDataLayer } from '../lib/datalayer';
+import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer } from '../lib/datalayer';
 
 const MiasteniaGravisApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -143,6 +143,15 @@ const MiasteniaGravisApp = () => {
         stopCurrentMedia();
       }
     });
+
+    // Tracking da página inicial (home) quando a aplicação carrega
+    if (currentPage === 'home') {
+      saveNavigationEvent('page_view', 'home', {
+        fromPage: null,
+        timestamp: new Date().toISOString(),
+        isInitialLoad: true
+      });
+    }
     
     if (currentPage !== 'testimonials') {
       stopCurrentMedia();
@@ -325,6 +334,39 @@ const MiasteniaGravisApp = () => {
     }
   };
 
+  // Função para salvar eventos de navegação
+  const saveNavigationEvent = async (eventType, page, eventData = {}) => {
+    // Disparar evento no DataLayer
+    trackNavigationEvent(page, eventData);
+    
+    try {
+      // Salvar no MongoDB via API
+      const response = await fetch('/api/navigation-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventType: eventType,
+          page: page,
+          timestamp: new Date().toISOString(),
+          data: eventData
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`🧭 Evento de navegação salvo no MongoDB: ${page}`, result.navigationEvent);
+        console.log('📊 ID do evento:', result.eventId);
+      } else {
+        console.error(`❌ Erro ao salvar evento de navegação ${page} no MongoDB:`, result.message);
+      }
+    } catch (error) {
+      console.error(`❌ Erro ao conectar com a API para evento de navegação ${page}:`, error);
+    }
+  };
+
   // Função para lidar com a avaliação
   const handleRating = async (rating) => {
     setSelectedRating(rating);
@@ -405,15 +447,15 @@ const MiasteniaGravisApp = () => {
   // Função para obter ícone baseado na avaliação
   const getRatingIcon = (rating) => {
     switch (rating) {
-      case 0:
-        return <Frown className="w-8 h-8 text-red-600" />;
       case 1:
-        return <Frown className="w-8 h-8 text-orange-600" />;
+        return <Frown className="w-8 h-8 text-red-600" />;
       case 2:
-        return <Meh className="w-8 h-8 text-yellow-600" />;
+        return <Frown className="w-8 h-8 text-orange-600" />;
       case 3:
-        return <Smile className="w-8 h-8 text-green-600" />;
+        return <Meh className="w-8 h-8 text-yellow-600" />;
       case 4:
+        return <Smile className="w-8 h-8 text-green-600" />;
+      case 5:
         return <Heart className="w-8 h-8 text-emerald-600" />;
       default:
         return <Meh className="w-8 h-8 text-gray-600" />;
@@ -432,6 +474,12 @@ const MiasteniaGravisApp = () => {
         timeSpent: null // Poderia calcular tempo se tivéssemos startTime em state
       });
     }
+    
+    // Tracking de navegação para todas as páginas
+    saveNavigationEvent('page_view', page, {
+      fromPage: currentPage,
+      timestamp: new Date().toISOString()
+    });
     
     setCurrentPage(page);
     window.scrollTo(0, 0);
@@ -466,7 +514,7 @@ const MiasteniaGravisApp = () => {
           
                      {!ratingSubmitted ? (
              <div className="flex justify-center items-center gap-4 mb-6">
-               {[0, 1, 2, 3, 4].map((rating) => (
+               {[1, 2, 3, 4, 5].map((rating) => (
                  <button
                    key={rating}
                    onClick={() => handleRating(rating)}
@@ -474,10 +522,10 @@ const MiasteniaGravisApp = () => {
                  >
                    {/* Ícone do rosto */}
                    <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
-                     rating === 0 ? 'bg-red-100 group-hover:bg-red-200' :
-                     rating === 1 ? 'bg-orange-100 group-hover:bg-orange-200' :
-                     rating === 2 ? 'bg-yellow-100 group-hover:bg-yellow-200' :
-                     rating === 3 ? 'bg-green-100 group-hover:bg-green-200' :
+                     rating === 1 ? 'bg-red-100 group-hover:bg-red-200' :
+                     rating === 2 ? 'bg-orange-100 group-hover:bg-orange-200' :
+                     rating === 3 ? 'bg-yellow-100 group-hover:bg-yellow-200' :
+                     rating === 4 ? 'bg-green-100 group-hover:bg-green-200' :
                      'bg-emerald-100 group-hover:bg-emerald-200'
                    }`}>
                      {getRatingIcon(rating)}
@@ -485,10 +533,10 @@ const MiasteniaGravisApp = () => {
                    
                    {/* Barra colorida */}
                    <div className={`w-12 h-3 rounded-full transition-all ${
-                     rating === 0 ? 'bg-red-500' :
-                     rating === 1 ? 'bg-orange-500' :
-                     rating === 2 ? 'bg-yellow-500' :
-                     rating === 3 ? 'bg-green-500' :
+                     rating === 1 ? 'bg-red-500' :
+                     rating === 2 ? 'bg-orange-500' :
+                     rating === 3 ? 'bg-yellow-500' :
+                     rating === 4 ? 'bg-green-500' :
                      'bg-emerald-600'
                    }`}></div>
                  </button>

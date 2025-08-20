@@ -64,22 +64,22 @@ const RatingStats = () => {
 
   const getRatingLabel = (rating) => {
     switch (rating) {
-      case 4: return 'Excelente';
-      case 3: return 'Bom';
-      case 2: return 'Neutro';
-      case 1: return 'Ruim';
-      case 0: return 'Muito Ruim';
+      case 5: return 'Excelente';
+      case 4: return 'Bom';
+      case 3: return 'Neutro';
+      case 2: return 'Ruim';
+      case 1: return 'Muito Ruim';
       default: return 'N/A';
     }
   };
 
   const getRatingColor = (rating) => {
     switch (rating) {
-      case 4: return 'bg-emerald-500';
-      case 3: return 'bg-green-500';
-      case 2: return 'bg-yellow-500';
-      case 1: return 'bg-orange-500';
-      case 0: return 'bg-red-500';
+      case 5: return 'bg-emerald-500';
+      case 4: return 'bg-green-500';
+      case 3: return 'bg-yellow-500';
+      case 2: return 'bg-orange-500';
+      case 1: return 'bg-red-500';
       default: return 'bg-gray-500';
     }
   };
@@ -106,7 +106,7 @@ const RatingStats = () => {
             <Star className="w-5 h-5 text-green-600" />
             <span className="text-sm text-green-700 font-medium">Média Geral</span>
           </div>
-          <p className="text-2xl font-bold text-green-800 mt-1">{stats.average}/4</p>
+          <p className="text-2xl font-bold text-green-800 mt-1">{stats.average}/5</p>
         </div>
 
         <div className="bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg p-4">
@@ -122,7 +122,7 @@ const RatingStats = () => {
       <div className="mb-6">
         <h4 className="text-lg font-semibold text-gray-800 mb-4">Distribuição das Avaliações</h4>
         <div className="space-y-3">
-          {[4, 3, 2, 1, 0].map((rating) => {
+          {[5, 4, 3, 2, 1].map((rating) => {
             const count = stats.ratingCounts[rating];
             const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
             
@@ -154,22 +154,26 @@ const RatingStats = () => {
       {/* Resumo */}
       <div className="bg-gray-50 rounded-lg p-4">
         <h4 className="text-lg font-semibold text-gray-800 mb-2">Resumo</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
           <div>
-            <span className="text-gray-600">Excelente (4):</span>
+            <span className="text-gray-600">Excelente (5):</span>
             <p className="font-semibold text-emerald-600">{stats.distribution.excellent}</p>
           </div>
           <div>
-            <span className="text-gray-600">Bom (3):</span>
+            <span className="text-gray-600">Bom (4):</span>
             <p className="font-semibold text-green-600">{stats.distribution.good}</p>
           </div>
           <div>
-            <span className="text-gray-600">Neutro (2):</span>
+            <span className="text-gray-600">Neutro (3):</span>
             <p className="font-semibold text-yellow-600">{stats.distribution.neutral}</p>
           </div>
           <div>
-            <span className="text-gray-600">Ruim (0-1):</span>
-            <p className="font-semibold text-red-600">{stats.distribution.poor + stats.distribution.veryPoor}</p>
+            <span className="text-gray-600">Ruim (2):</span>
+            <p className="font-semibold text-orange-600">{stats.distribution.poor}</p>
+          </div>
+          <div>
+            <span className="text-gray-600">Muito ruim (1):</span>
+            <p className="font-semibold text-red-600">{stats.distribution.veryPoor}</p>
           </div>
         </div>
       </div>

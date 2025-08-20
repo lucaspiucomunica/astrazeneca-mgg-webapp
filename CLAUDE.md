@@ -66,7 +66,7 @@ public/
 - Diretório de associações com informações de contato
 
 **Sistema de Avaliação**:
-- Coleta feedback do usuário (escala 0-4)
+- Coleta feedback do usuário (escala 1-5)
 - Armazena no MongoDB via `/api/ratings`
 - Rastreia eventos via DataLayer para GTM
 - Estatísticas admin disponíveis em `/admin`
@@ -87,7 +87,7 @@ public/
 Coleção MongoDB: `ratings`
 ```javascript
 {
-  rating: number,        // Escala 0-4
+  rating: number,        // Escala 1-5
   timestamp: string,     // Timestamp ISO
   createdAt: Date       // Timestamp MongoDB
 }

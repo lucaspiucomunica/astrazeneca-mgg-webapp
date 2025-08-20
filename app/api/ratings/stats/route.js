@@ -16,7 +16,7 @@ export async function GET() {
     
     // Contar cada avaliação
     const ratingCounts = {};
-    for (let i = 0; i <= 4; i++) {
+    for (let i = 1; i <= 5; i++) {
       ratingCounts[i] = ratings.filter(r => r.rating === i).length;
     }
     
@@ -47,11 +47,11 @@ export async function GET() {
           last30Days: monthlyRatings.length
         },
         distribution: {
-          excellent: ratingCounts[4],
-          good: ratingCounts[3],
-          neutral: ratingCounts[2],
-          poor: ratingCounts[1],
-          veryPoor: ratingCounts[0]
+          excellent: ratingCounts[5],
+          good: ratingCounts[4],
+          neutral: ratingCounts[3],
+          poor: ratingCounts[2],
+          veryPoor: ratingCounts[1]
         }
       }
     });

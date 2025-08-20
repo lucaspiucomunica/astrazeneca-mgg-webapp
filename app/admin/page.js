@@ -1,5 +1,6 @@
 import RatingStats from '../../components/RatingStats';
 import QuizStats from '../../components/QuizStats';
+import NavigationStats from '../../components/NavigationStats';
 
 export default function AdminPage() {
   return (
@@ -25,8 +26,14 @@ export default function AdminPage() {
           {/* Estatísticas do Quiz */}
           <QuizStats />
 
+          {/* Separador */}
+          <div className="my-8 border-t border-gray-200"></div>
+
+          {/* Estatísticas de Navegação */}
+          <NavigationStats />
+
           {/* Informações adicionais */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6">
               <h3 className="text-xl font-bold text-purple-800 mb-4">
                 Sobre as Avaliações
@@ -51,16 +58,28 @@ export default function AdminPage() {
               </ul>
             </div>
 
-            <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl p-6">
+            <div className="bg-gradient-to-r from-green-100 to-teal-100 rounded-xl p-6">
               <h3 className="text-xl font-bold text-green-800 mb-4">
+                Sobre o Tracking de Navegação
+              </h3>
+              <ul className="space-y-2 text-gray-700">
+                <li>• <strong>Depoimentos:</strong> Registra cada acesso à página de histórias de pacientes</li>
+                <li>• <strong>Associações:</strong> Rastreia acessos à página de apoio e contatos</li>
+                <li>• <strong>DataLayer:</strong> Eventos enviados para Google Tag Manager</li>
+                <li>• <strong>MongoDB:</strong> Dados armazenados para análise detalhada</li>
+              </ul>
+            </div>
+
+            <div className="bg-gradient-to-r from-orange-100 to-yellow-100 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-orange-800 mb-4">
                 Como Interpretar os Dados
               </h3>
               <ul className="space-y-2 text-gray-700">
-                <li>• <strong>Excelente (4):</strong> Experiência muito positiva</li>
-                <li>• <strong>Bom (3):</strong> Experiência positiva</li>
-                <li>• <strong>Neutro (2):</strong> Experiência neutra</li>
-                <li>• <strong>Ruim (1):</strong> Experiência negativa</li>
-                <li>• <strong>Muito Ruim (0):</strong> Experiência muito negativa</li>
+                <li>• <strong>Excelente (5):</strong> Experiência muito positiva</li>
+                <li>• <strong>Bom (4):</strong> Experiência positiva</li>
+                <li>• <strong>Neutro (3):</strong> Experiência neutra</li>
+                <li>• <strong>Ruim (2):</strong> Experiência negativa</li>
+                <li>• <strong>Muito Ruim (1):</strong> Experiência muito negativa</li>
               </ul>
             </div>
           </div>
@@ -102,6 +121,22 @@ export default function AdminPage() {
                 className="flex items-center gap-2 p-3 bg-white rounded-lg hover:bg-blue-50 transition-colors"
               >
                 <span className="text-blue-600 font-medium">Estatísticas do Quiz</span>
+              </a>
+              <a 
+                href="/api/navigation-events" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-3 bg-white rounded-lg hover:bg-green-50 transition-colors"
+              >
+                <span className="text-green-600 font-medium">API de Navegação</span>
+              </a>
+              <a 
+                href="/api/navigation-events/stats" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-3 bg-white rounded-lg hover:bg-green-50 transition-colors"
+              >
+                <span className="text-green-600 font-medium">Estatísticas de Navegação</span>
               </a>
               <a 
                 href="/api/test-mongodb" 
