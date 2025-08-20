@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart } from 'lucide-react';
+import { trackRating, initializeDataLayer } from '../lib/datalayer';
 
 const MiasteniaGravisApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -14,11 +15,50 @@ const MiasteniaGravisApp = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(null);
+  const [resetProgress, setResetProgress] = useState(0);
 
   // Refs para controlar os players de áudio e vídeo
   const audioRef = useRef(null);
   const videoRef = useRef(null);
   const heroVideoRef = useRef(null);
+
+  // Dados das associações
+  const associations = [
+    {
+      id: 1,
+      name: "Casa Hunter",
+      phones: ["(11) 2776-3647", "(11) 99435-1299"],
+      email: "casahunter@casahunter.org.br",
+      instagram: null
+    },
+    {
+      id: 2,
+      name: "AFAG Brasil",
+      fullName: "Associação dos Familiares, Amigos e Portadores de Doenças Graves",
+      phones: ["0800-777-2902", "(19) 99632-6225"],
+      email: "contato@afag.org.br",
+      instagram: null
+    },
+    {
+      id: 3,
+      name: "ABRAMI",
+      fullName: "Associação Brasileira de Miastenia",
+      phones: ["(11) 96801-5987"],
+      email: "contato@abrami.org.br",
+      instagram: null
+    },
+    {
+      id: 4,
+      name: "AMMI",
+      fullName: "Associação Mineira de Miastenia",
+      phones: [],
+      email: null,
+      instagram: "instagram.com/ammi_associacao"
+    }
+  ];
 
   // Função para controlar reprodução
   const togglePlayPause = () => {
@@ -76,8 +116,11 @@ const MiasteniaGravisApp = () => {
     setShowTranscription(false);
   };
 
-  // Efeito para pausar reprodução ao sair da página
+  // Efeito para inicializar o DataLayer e pausar reprodução ao sair da página
   useEffect(() => {
+    // Inicializar DataLayer quando o componente montar
+    initializeDataLayer();
+    
     if (currentPage !== 'testimonials') {
       stopCurrentMedia();
     }
@@ -204,6 +247,101 @@ const MiasteniaGravisApp = () => {
     setQuizCompleted(false);
   };
 
+  // Função para lidar com a avaliação
+  const handleRating = async (rating) => {
+    setSelectedRating(rating);
+    setRatingSubmitted(true);
+    setResetProgress(0);
+    
+    // Disparar evento no DataLayer
+    trackRating(rating, {
+      page: currentPage,
+      user_interaction: 'rating_submitted'
+    });
+    
+    try {
+      // Salvar no MongoDB via API
+      const response = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rating: rating,
+          timestamp: new Date().toISOString()
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('💾 Avaliação salva no MongoDB:', result.rating);
+        console.log('📊 ID da avaliação:', result.ratingId);
+      } else {
+        console.error('❌ Erro ao salvar no MongoDB:', result.message);
+        // Fallback para localStorage em caso de erro
+        const ratings = JSON.parse(localStorage.getItem('immersion_ratings') || '[]');
+        const newRating = {
+          rating,
+          timestamp: new Date().toISOString()
+        };
+        ratings.push(newRating);
+        localStorage.setItem('immersion_ratings', JSON.stringify(ratings));
+        console.log('💾 Avaliação salva no localStorage como backup:', newRating);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao conectar com a API:', error);
+      // Fallback para localStorage em caso de erro
+      const ratings = JSON.parse(localStorage.getItem('immersion_ratings') || '[]');
+      const newRating = {
+        rating,
+        timestamp: new Date().toISOString()
+      };
+      ratings.push(newRating);
+      localStorage.setItem('immersion_ratings', JSON.stringify(ratings));
+      console.log('💾 Avaliação salva no localStorage como backup:', newRating);
+    }
+    
+    // Barra de progresso fluída
+    const startTime = Date.now();
+    const duration = 5000; // 5 segundos
+    
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min((elapsed / duration) * 100, 100);
+      
+      setResetProgress(progress);
+      
+      if (progress < 100) {
+        requestAnimationFrame(updateProgress);
+      } else {
+        setRatingSubmitted(false);
+        setSelectedRating(null);
+        setResetProgress(0);
+      }
+    };
+    
+    requestAnimationFrame(updateProgress);
+  };
+
+  // Função para obter ícone baseado na avaliação
+  const getRatingIcon = (rating) => {
+    switch (rating) {
+      case 0:
+        return <Frown className="w-8 h-8 text-red-600" />;
+      case 1:
+        return <Frown className="w-8 h-8 text-orange-600" />;
+      case 2:
+        return <Meh className="w-8 h-8 text-yellow-600" />;
+      case 3:
+        return <Smile className="w-8 h-8 text-green-600" />;
+      case 4:
+        return <Heart className="w-8 h-8 text-emerald-600" />;
+      default:
+        return <Meh className="w-8 h-8 text-gray-600" />;
+    }
+  };
+
 
 
   const navigateTo = (page) => {
@@ -213,32 +351,86 @@ const MiasteniaGravisApp = () => {
 
   // Componente do Footer
   const Footer = () => (
-    <div className="mt-8 border-t pt-6">
+    <div className="mt-8 border-t pt-6 border-gray-200">
       <div className="flex flex-col items-center justify-center">
-        <a 
-          href="https://materiais.programafazbem.com.br/miastenia-gravis" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold"
-        >
-          <ExternalLink className="w-5 h-5" />
+        <h3 className="text-xl font-bold text-purple-800 mb-2 text-center">
           Acesse o site da campanha e saiba mais
-        </a>
+        </h3>
         
         <div className="mt-6 inline-block p-4 bg-white rounded-lg shadow-lg">
           <img 
             src="/images/qr-code.png" 
             alt="QR Code para acessar o site" 
-            className="w-48 h-48 mx-auto"
+            className="w-32 h-32 mx-auto"
           />
           <p className="text-sm text-gray-600 mt-2">
             Tire uma foto para acessar em casa
           </p>
         </div>
       </div>
+
+      {/* Sistema de Avaliação */}
+      <div className="mt-8 border-t pt-6 border-gray-200">
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-purple-800 mb-6">
+            Como foi sua experiência nesta imersão?
+          </h3>
+          
+                     {!ratingSubmitted ? (
+             <div className="flex justify-center items-center gap-4 mb-6">
+               {[0, 1, 2, 3, 4].map((rating) => (
+                 <button
+                   key={rating}
+                   onClick={() => handleRating(rating)}
+                   className="flex flex-col items-center gap-2 group cursor-pointer transition-all hover:scale-110"
+                 >
+                   {/* Ícone do rosto */}
+                   <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
+                     rating === 0 ? 'bg-red-100 group-hover:bg-red-200' :
+                     rating === 1 ? 'bg-orange-100 group-hover:bg-orange-200' :
+                     rating === 2 ? 'bg-yellow-100 group-hover:bg-yellow-200' :
+                     rating === 3 ? 'bg-green-100 group-hover:bg-green-200' :
+                     'bg-emerald-100 group-hover:bg-emerald-200'
+                   }`}>
+                     {getRatingIcon(rating)}
+                   </div>
+                   
+                   {/* Barra colorida */}
+                   <div className={`w-12 h-3 rounded-full transition-all ${
+                     rating === 0 ? 'bg-red-500' :
+                     rating === 1 ? 'bg-orange-500' :
+                     rating === 2 ? 'bg-yellow-500' :
+                     rating === 3 ? 'bg-green-500' :
+                     'bg-emerald-600'
+                   }`}></div>
+                 </button>
+               ))}
+             </div>
+                     ) : (
+                           <div className="bg-white rounded-lg shadow-lg p-6 mb-6 max-w-sm mx-auto">
+                <div className="flex flex-col items-center gap-3">
+                  <h4 className="text-lg font-bold text-green-800 text-center">
+                    Obrigado por avaliar!
+                  </h4>
+                  
+                  {/* Barra de progresso */}
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div 
+                      className="bg-green-500 h-2 rounded-full transition-all duration-100 ease-linear"
+                      style={{ width: `${resetProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+           )}
+        </div>
+      </div>
+
+      <div className="mt-8 border-t pt-6 border-gray-200">
       <p className="text-center text-gray-600 text-sm mt-4">
         © 2025 - Campanha de Conscientização sobre Miastenia Gravis
       </p>
+      </div>
     </div>
   );
 
@@ -250,19 +442,13 @@ const MiasteniaGravisApp = () => {
           <div className="bg-white rounded-2xl shadow-lg p-8">
             {/* Header da Campanha */}
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-purple-800 mb-4">
-                A tempestade vai e a vida volta
-              </h1>
-              <p className="text-xl text-gray-600 mb-2">
-                Conhecimento, Apoio e Esperança
-              </p>
-              <p className="text-lg text-gray-500">
-                Uma campanha de conscientização sobre Miastenia Gravis
-              </p>
+              <h1 className="text-4xl font-bold text-purple-800 mb-4">A tempestade vai e a vida volta</h1>
+              <p className="text-xl text-gray-600 mb-2">Você acaba de viver a experiência de como a Miastenia Gravis pode impactar o dia a dia de quem tem a doença.</p>
+              <p className="text-lg text-gray-500">Mesmo ações cotidianas como escovar os dentes são desafiadoras em quadros de fraqueza muscular e fadiga extrema<sup>1</sup> — dois dos principais sintomas.</p>
             </div>
 
             {/* Vídeo Hero */}
-            <div className="mb-10 rounded-xl overflow-hidden shadow-lg aspect-video relative">
+            <div className="mb-10 rounded-xl overflow-hidden shadow-lg aspect-video relative max-w-xl mx-auto">
               {!isHeroVideoPlaying ? (
                 <div 
                   className="group cursor-pointer w-full h-full"
@@ -292,21 +478,29 @@ const MiasteniaGravisApp = () => {
             </div>
 
             {/* Botões de Navegação estilo iOS */}
-            <div className="grid grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <button
                 onClick={() => navigateTo('testimonials')}
-                className="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+                className="flex flex-col items-center justify-center gap-3 p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
               >
-                <Headphones className="w-12 h-12" />
-                <span className="font-semibold text-sm">Conheça as histórias</span>
+                <Headphones className="w-8 h-8" />
+                <span className="font-semibold text-sm">Conheça histórias de pacientes (em áudio e vídeo)</span>
               </button>
 
               <button
                 onClick={() => navigateTo('quiz')}
-                className="flex flex-col items-center justify-center gap-3 p-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+                className="flex flex-col items-center justify-center gap-3 p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
               >
-                <Award className="w-12 h-12" />
+                <Award className="w-8 h-8" />
                 <span className="font-semibold text-sm">Teste seus conhecimentos</span>
+              </button>
+
+              <button
+                onClick={() => navigateTo('associations')}
+                className="flex flex-col items-center justify-center gap-3 p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all cursor-pointer"
+              >
+                <Users className="w-8 h-8" />
+                <span className="font-semibold text-sm">Saiba como procurar apoio</span>
               </button>
             </div>
 
@@ -323,7 +517,7 @@ const MiasteniaGravisApp = () => {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg">
           {/* Header com botão voltar */}
-          <div className="p-6 border-b flex items-center justify-between">
+          <div className="p-6 border-b border-gray-200 flex items-center justify-between">
             <button
               onClick={() => navigateTo('home')}
               className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold"
@@ -334,6 +528,7 @@ const MiasteniaGravisApp = () => {
             <h2 className="text-2xl font-bold text-purple-800">
               {currentPage === 'testimonials' && 'Depoimentos'}
               {currentPage === 'quiz' && 'Quiz Educativo'}
+              {currentPage === 'associations' && 'Associações de Apoio'}
             </h2>
             <div className="w-20"></div>
           </div>
@@ -345,10 +540,10 @@ const MiasteniaGravisApp = () => {
               <div className="space-y-6">
                 <div className="text-center mb-6">
                   <h3 className="text-xl font-bold text-purple-800 mb-2">
-                    Histórias de Superação
+                  Saiba como procurar apoio
                   </h3>
                   <p className="text-gray-600">
-                    Ouça e assista depoimentos de pessoas que convivem com a MG
+                  Conheça as associações que oferecem suporte aos pacientes e seus familiares:
                   </p>
                 </div>
 
@@ -567,7 +762,82 @@ const MiasteniaGravisApp = () => {
               </div>
             )}
 
+            {/* Página de Associações */}
+            {currentPage === 'associations' && (
+              <div className="space-y-6">
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold text-purple-800 mb-2">
+                    Saiba como procurar apoio
+                  </h3>
+                  <p className="text-gray-600">
+                    Conheça as associações que oferecem suporte aos pacientes e seus familiares:
+                  </p>
+                </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   {associations.map((association) => (
+                     <div key={association.id} className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6 hover:shadow-lg transition-all">
+                       <div className="flex items-start gap-4 mb-4">
+                         {/* Espaço reservado para logo */}
+                         <div className="w-16 h-16 bg-white bg-opacity-50 rounded-lg flex items-center justify-center border-2 border-dashed border-purple-300">
+                           <span className="text-purple-600 text-xs font-medium">LOGO</span>
+                         </div>
+                         
+                                                   <div className="flex-1">
+                            <h4 className="text-xl font-bold text-purple-800 mb-1">
+                              {association.name}
+                            </h4>
+                            {association.fullName && (
+                              <p className="text-sm text-gray-600">
+                                {association.fullName}
+                              </p>
+                            )}
+                          </div>
+                       </div>
+
+                       <div className="space-y-3">
+                         {/* Telefones */}
+                         {association.phones.length > 0 && (
+                           <div className="flex items-center gap-2">
+                             <Phone className="w-4 h-4 text-purple-600" />
+                             <div className="flex flex-wrap gap-2">
+                               {association.phones.map((phone, index) => (
+                                 <span
+                                   key={index}
+                                   className="text-sm text-gray-700 font-medium"
+                                 >
+                                   {phone}
+                                 </span>
+                               ))}
+                             </div>
+                           </div>
+                         )}
+
+                         {/* Email */}
+                         {association.email && (
+                           <div className="flex items-center gap-2">
+                             <Mail className="w-4 h-4 text-purple-600" />
+                             <span className="text-sm text-gray-700 font-medium">
+                               {association.email}
+                             </span>
+                           </div>
+                         )}
+
+                         {/* Instagram */}
+                         {association.instagram && (
+                           <div className="flex items-center gap-2">
+                             <Instagram className="w-4 h-4 text-purple-600" />
+                             <span className="text-sm text-gray-700 font-medium">
+                               @{association.instagram.split('/')[1]}
+                             </span>
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+            )}
 
             <Footer />
           </div>
