@@ -524,7 +524,7 @@ const MiasteniaGravisApp = () => {
           <p>2. Suresh, A. B.Asuncion, R. M. D. Myasthenia Gravis. StatPearls (2023).</p>
           <p>3. Cunha, F. M. B., Scola, R. H. & Werk, L. C. Myasthenia gravis: Historical aspects. Arq Neuropsiquiatr 57, 531–536 (1999).</p>
           <p>4. GilhuN. E. et al. Myasthenia gravis. Nat Rev Dis Primers 5, (2019).</p>
-          <p>5. Mukharesh, L. & Kaminski, H. J. A Neurologist's Perspective on Understanding Myhenia Gravis: Clinical Perspectives of Etiologic Factors, Diagnosis, and Preoperative Treatment. Thorac Surg Clin 29, 133–141 (2019).</p>
+          <p>5. Mukharesh, L. & Kaminski, H. J. A Neurologist&apos;s Perspective on Understanding Myhenia Gravis: Clinical Perspectives of Etiologic Factors, Diagnosis, and Preoperative Treatment. Thorac Surg Clin 29, 133–141 (2019).</p>
           <p>6. Uzawa, At al. Minimal symptom expression achievement over time in generalized myasthenia gravis. Acta Neurol Belg 123, 979–982 (2023).</p>
         </div>
       </div>

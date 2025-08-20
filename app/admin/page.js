@@ -47,7 +47,7 @@ export default function AdminPage() {
                 <li>• <strong>Início:</strong> Quando o usuário entra na página do quiz</li>
                 <li>• <strong>Abandono:</strong> Quando sai antes de completar (registra qual pergunta)</li>
                 <li>• <strong>Conclusão:</strong> Quando completa todas as perguntas (registra pontuação)</li>
-                <li>• <strong>Refazer:</strong> Quando clica em "Fazer Novamente"</li>
+                <li>• <strong>Refazer:</strong> Quando clica em &quot;Fazer Novamente&quot;</li>
               </ul>
             </div>
 
