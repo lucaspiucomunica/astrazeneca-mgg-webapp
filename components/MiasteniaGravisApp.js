@@ -182,17 +182,11 @@ const MiasteniaGravisApp = () => {
     }
   }, [currentPage]);
 
-  // Função para extrair iniciais do nome
-  const getInitials = (name) => {
-    const firstInitial = name.split(' ')[0].charAt(0).toUpperCase();
-    return firstInitial + '.';
-  };
-
   // Depoimentos fictícios com transcrições
   const testimonials = [
     {
       id: 1,
-      name: "Guilherme",
+      name: "G.",
       description: "Paciente de Miastenia Gravis",
       type: "audio",
       mediaUrl: "/audio/guilherme.mp3",
@@ -200,7 +194,7 @@ const MiasteniaGravisApp = () => {
     },
     {
       id: 2,
-      name: "Kenia",
+      name: "K.",
       description: "Paciente de Miastenia Gravis",
       type: "audio",
       mediaUrl: "/audio/kenia.mp3",
@@ -718,25 +712,17 @@ const MiasteniaGravisApp = () => {
 
                 <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      {/* Iniciais em círculo para depoimentos em áudio */}
-                      {testimonials[currentTestimonial].type === 'audio' && (
-                        <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                          {getInitials(testimonials[currentTestimonial].name)}
-                        </div>
-                      )}
-                      <div>
-                        <h4 className="text-xl font-bold text-purple-800">
-                          {testimonials[currentTestimonial].name}
-                        </h4>
-                        <p className="text-gray-600 flex items-center gap-2">
-                          {testimonials[currentTestimonial].description}
-                          {testimonials[currentTestimonial].type === 'video' ? 
-                            <Video className="w-4 h-4" /> : 
-                            <Volume2 className="w-4 h-4" />
-                          }
-                        </p>
-                      </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-purple-800">
+                        {testimonials[currentTestimonial].name}
+                      </h4>
+                      <p className="text-gray-600 flex items-center gap-2">
+                        {testimonials[currentTestimonial].description}
+                        {testimonials[currentTestimonial].type === 'video' ? 
+                          <Video className="w-4 h-4" /> : 
+                          <Volume2 className="w-4 h-4" />
+                        }
+                      </p>
                     </div>
                     <button
                       onClick={togglePlayPause}
