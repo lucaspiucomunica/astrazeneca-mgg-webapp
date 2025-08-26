@@ -182,6 +182,12 @@ const MiasteniaGravisApp = () => {
     }
   }, [currentPage]);
 
+  // Função para extrair iniciais do nome
+  const getInitials = (name) => {
+    const firstInitial = name.split(' ')[0].charAt(0).toUpperCase();
+    return firstInitial + '.';
+  };
+
   // Depoimentos fictícios com transcrições
   const testimonials = [
     {
@@ -568,7 +574,7 @@ const MiasteniaGravisApp = () => {
           Referências
         </h3>
         <div className="text-xs text-gray-600 space-y-2 max-w-4xl mx-auto">
-          <p>1. Ministério da Saúde. Ministério da Se - PORTARIA CONJUNTA No 11, DE 23 DE MAIO DE 2022. https://bvsms.saude.gov.br/bvs/saudelegis/saes/2022/poc0011_27_05_2022.html.</p>
+          <p>1. Ministério da Saúde. Ministério da Se - PORTARIA CONJUNTA No 11, DE 23 DE MAIO DE 2022. https://bvsms.saude.gov.br/bvs/saudelegis/saes/2022/poc0011_27_05_2022.html. Acessado em 25/08/2025.</p>
           <p>2. Suresh, A. B.Asuncion, R. M. D. Myasthenia Gravis. StatPearls (2023).</p>
           <p>3. Cunha, F. M. B., Scola, R. H. & Werk, L. C. Myasthenia gravis: Historical aspects. Arq Neuropsiquiatr 57, 531–536 (1999).</p>
           <p>4. GilhuN. E. et al. Myasthenia gravis. Nat Rev Dis Primers 5, (2019).</p>
@@ -712,17 +718,25 @@ const MiasteniaGravisApp = () => {
 
                 <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h4 className="text-xl font-bold text-purple-800">
-                        {testimonials[currentTestimonial].name}
-                      </h4>
-                      <p className="text-gray-600 flex items-center gap-2">
-                        {testimonials[currentTestimonial].description}
-                        {testimonials[currentTestimonial].type === 'video' ? 
-                          <Video className="w-4 h-4" /> : 
-                          <Volume2 className="w-4 h-4" />
-                        }
-                      </p>
+                    <div className="flex items-center gap-4">
+                      {/* Iniciais em círculo para depoimentos em áudio */}
+                      {testimonials[currentTestimonial].type === 'audio' && (
+                        <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                          {getInitials(testimonials[currentTestimonial].name)}
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="text-xl font-bold text-purple-800">
+                          {testimonials[currentTestimonial].name}
+                        </h4>
+                        <p className="text-gray-600 flex items-center gap-2">
+                          {testimonials[currentTestimonial].description}
+                          {testimonials[currentTestimonial].type === 'video' ? 
+                            <Video className="w-4 h-4" /> : 
+                            <Volume2 className="w-4 h-4" />
+                          }
+                        </p>
+                      </div>
                     </div>
                     <button
                       onClick={togglePlayPause}
@@ -828,7 +842,7 @@ const MiasteniaGravisApp = () => {
                       </div>
                       <div className="flex-1">
                         <p className="text-gray-700 leading-relaxed">
-                        Nosso corpo precisa de uma boa comunicação entre os nervos e os músculos para funcionar direitinho e quem faz esse papel de mensageiro é a acetilcolina, um neurotransmissor essencial nessa conversa.<sup>6</sup>
+                        Nosso corpo precisa de uma boa comunicação entre os nervos e os músculos para funcionar direitinho e quem faz esse papel de mensageiro é a acetilcolina, um neurotransmissor essencial nessa conversa.<sup>2,5</sup>
                         </p>
                       </div>
                     </div>
@@ -847,7 +861,7 @@ const MiasteniaGravisApp = () => {
                       </div>
                       <div className="flex-1">
                         <p className="text-gray-700 leading-relaxed">
-                        Na Miastenia Gravis, o organismo acaba produzindo anticorpos que atacam justamente os receptores de acetilcolina, dificultando essa comunicação. Isso atrapalha a contração dos músculos e causa os principais sintomas da doença: fraqueza e cansaço.<sup>6</sup>
+                        Na Miastenia Gravis, o organismo acaba produzindo anticorpos que atacam justamente os receptores de acetilcolina, dificultando essa comunicação. Isso atrapalha a contração dos músculos e causa os principais sintomas da doença: fraqueza e cansaço.<sup>3,4</sup>
                         </p>
                       </div>
                     </div>
@@ -866,7 +880,7 @@ const MiasteniaGravisApp = () => {
                       </div>
                       <div className="flex-1">
                         <p className="text-gray-700 leading-relaxed">
-                        Anticorpos são moléculas que o corpo fabrica para se defender de vírus e bactérias. Mas em doenças autoimunes, como a Miastenia Gravis, o sistema de defesa se confunde e passa a atacar partes saudáveis do próprio corpo — esses são os chamados autoanticorpos.<sup>3,6</sup>
+                        Anticorpos são moléculas que o corpo fabrica para se defender de vírus e bactérias. Mas em doenças autoimunes, como a Miastenia Gravis, o sistema de defesa se confunde e passa a atacar partes saudáveis do próprio corpo — esses são os chamados autoanticorpos.<sup>3,5</sup>
                         </p>
                       </div>
                     </div>
