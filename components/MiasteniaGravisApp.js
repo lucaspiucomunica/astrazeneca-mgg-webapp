@@ -568,7 +568,7 @@ const MiasteniaGravisApp = () => {
           Referências
         </h3>
         <div className="text-xs text-gray-600 space-y-2 max-w-4xl mx-auto">
-          <p>1. Ministério da Saúde. Ministério da Se - PORTARIA CONJUNTA No 11, DE 23 DE MAIO DE 2022. https://bvsms.saude.gov.br/bvs/saudelegis/saes/2022/poc0011_27_05_2022.html. Acessado em 25/08/2025.</p>
+          <p>1. Ministério da Saúde. Ministério da Saúde - PORTARIA CONJUNTA No 11, DE 23 DE MAIO DE 2022. Disponível em https://www.gov.br/conitec/pt-br/midias/protocolos/resumidos/20220705_PCDT_Resumido_MIastenia_Gravis_final.pdf. Acessado em 25 de agosto de 2025.</p>
           <p>2. Suresh, A. B.Asuncion, R. M. D. Myasthenia Gravis. StatPearls (2023).</p>
           <p>3. Cunha, F. M. B., Scola, R. H. & Werk, L. C. Myasthenia gravis: Historical aspects. Arq Neuropsiquiatr 57, 531–536 (1999).</p>
           <p>4. GilhuN. E. et al. Myasthenia gravis. Nat Rev Dis Primers 5, (2019).</p>
