@@ -37,7 +37,7 @@ const MiasteniaGravisApp = () => {
     {
       id: 2,
       name: "AFAG Brasil",
-      fullName: "Associação dos Familiares, Amigos e Portadores de Doenças Graves",
+      fullName: "Associação dos Familiares, Amigos e Pessoas com Doenças Graves, Raras e Deficiências",
       phones: ["0800-777-2902", "(19) 99632-6225"],
       email: "contato@afag.org.br",
       instagram: null
@@ -706,7 +706,7 @@ const MiasteniaGravisApp = () => {
                   Histórias de superação
                   </h3>
                   <p className="text-gray-600">
-                  Ouça e assista depoimentos de pessoas que convivem com a Miastenia Gravis
+                  Ouça e assista a depoimentos de pessoas que convivem com a Miastenia Gravis
                   </p>
                 </div>
 
