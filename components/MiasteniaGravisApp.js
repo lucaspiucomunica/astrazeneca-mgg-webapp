@@ -118,30 +118,9 @@ const MiasteniaGravisApp = () => {
 
   // Efeito para inicializar o DataLayer e pausar reprodução ao sair da página
   useEffect(() => {
-    // Inicializar DataLayer com configurações para modo quiosque
+    // Inicializar DataLayer
     initializeDataLayer({
-      enableHeartbeat: true,
-      heartbeatInterval: 25, // 25 minutos
-      enableIdleDetection: true,
-      idleTimeout: 10, // 10 minutos de inatividade
-      googleAnalyticsId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null,
-      resetCallback: () => {
-        // Reset do app após inatividade - volta para home
-        setCurrentPage('home');
-        setCurrentTestimonial(0);
-        setIsPlaying(false);
-        setShowTranscription(false);
-        setCurrentQuestionIndex(0);
-        setSelectedAnswer(null);
-        setShowResult(false);
-        setScore(0);
-        setQuizCompleted(false);
-        setIsHeroVideoPlaying(false);
-        setShowRating(false);
-        setRatingSubmitted(false);
-        setSelectedRating(null);
-        stopCurrentMedia();
-      }
+      googleAnalyticsId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null
     });
 
     // Tracking da página inicial (home) quando a aplicação carrega
