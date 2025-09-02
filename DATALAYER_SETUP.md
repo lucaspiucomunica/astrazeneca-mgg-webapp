@@ -19,13 +19,11 @@ Disparado quando um usuário avalia a experiência:
 ```javascript
 {
   event: 'immersion_rating',
-  rating: 4, // 0-4
-  rating_category: 'excellent', // very_poor, poor, neutral, good, excellent
+  rating: 4, // 1-5
+  rating_category: 'good', // very_poor, poor, neutral, good, excellent
   user_agent: 'Mozilla/5.0...',
   screen_resolution: '1920x1080',
   language: 'pt-BR',
-  page: 'home',
-  user_interaction: 'rating_submitted',
   timestamp: '2025-01-15T10:30:00.000Z'
 }
 ```
@@ -62,31 +60,6 @@ Disparado quando usuário navega entre páginas:
 }
 ```
 
-### Eventos do Quiosque (`kiosk_event`, `kiosk_heartbeat`)
-
-Disparados para monitoramento em modo quiosque:
-
-```javascript
-// Evento do quiosque
-{
-  event: 'kiosk_event',
-  event_type: 'kiosk_initialized', // kiosk_initialized, kiosk_interaction, kiosk_idle, kiosk_reset
-  kiosk_uptime: 150000, // Tempo em ms desde inicialização
-  memory_usage: 45, // Uso de memória em MB
-  timestamp: '2025-01-15T10:30:00.000Z'
-}
-
-// Heartbeat
-{
-  event: 'kiosk_heartbeat',
-  heartbeat_type: 'session_keep_alive',
-  uptime: 150000,
-  timestamp: '2025-01-15T10:30:00.000Z'
-}
-```
-
-
-
 ## 🛠️ Configuração no Google Tag Manager
 
 ### 1. Criar Tag para Eventos de Avaliação
@@ -98,8 +71,7 @@ Disparados para monitoramento em modo quiosque:
    - **Parameters**:
      - `rating` → `{{DLV - rating}}`
      - `rating_category` → `{{DLV - rating_category}}`
-     - `page` → `{{DLV - page}}`
-     - `user_interaction` → `{{DLV - user_interaction}}`
+     - `user_agent` → `{{DLV - user_agent}}`
 
 ### 2. Criar Triggers
 
@@ -121,12 +93,6 @@ Disparados para monitoramento em modo quiosque:
    - **Trigger Type**: Custom Event
    - **Event Name**: `page_navigation`
 
-#### Trigger para Quiosque
-1. Vá para **Triggers** > **New**
-2. Configure:
-   - **Trigger Type**: Custom Event
-   - **Event Name**: `kiosk_event` OU `kiosk_heartbeat`
-
 ### 3. Criar Variáveis do DataLayer
 
 Para cada parâmetro, crie uma variável:
@@ -137,10 +103,9 @@ Para cada parâmetro, crie uma variável:
 
 Repita para todas as variáveis dos eventos:
 
-**Avaliações**: `rating_category`, `page`, `user_interaction`
-**Quiz**: `eventType`, `data` (objeto com score, questionIndex, etc.)
-**Navegação**: `page`, `eventType`
-**Quiosque**: `event_type`, `kiosk_uptime`, `memory_usage`, `heartbeat_type`
+**Avaliações**: `rating`, `rating_category`, `user_agent`, `screen_resolution`, `language`
+**Quiz**: `eventType`, `user_agent`, `screen_resolution`, `language`
+**Navegação**: `page`, `eventType`, `user_agent`, `screen_resolution`, `language`
 
 ## 🧪 Como Testar
 
@@ -164,23 +129,23 @@ Repita para todas as variáveis dos eventos:
 
 | Rating | Category | Descrição |
 |--------|----------|-----------|
-| 0 | very_poor | Muito Ruim |
-| 1 | poor | Ruim |
-| 2 | neutral | Neutro |
-| 3 | good | Bom |
-| 4 | excellent | Excelente |
+| 1 | very_poor | Muito Ruim |
+| 2 | poor | Ruim |
+| 3 | neutral | Neutro |
+| 4 | good | Bom |
+| 5 | excellent | Excelente |
 
 ### Parâmetros Disponíveis
 
 | Parâmetro | Tipo | Descrição |
 |-----------|------|-----------|
-| `rating` | number | Valor da avaliação (0-4) |
+| `rating` | number | Valor da avaliação (1-5) |
 | `rating_category` | string | Categoria da avaliação |
 | `user_agent` | string | User agent do navegador |
 | `screen_resolution` | string | Resolução da tela |
 | `language` | string | Idioma do navegador |
 | `page` | string | Página atual |
-| `user_interaction` | string | Tipo de interação |
+| `eventType` | string | Tipo de evento |
 | `timestamp` | string | Timestamp ISO |
 
 ## 🔧 Funções Disponíveis
@@ -223,30 +188,14 @@ trackNavigationEvent('depoimentos', {
 });
 ```
 
-### `trackKioskEvent(eventType, additionalData)`
-
-Dispara evento do quiosque:
-
-```javascript
-import { trackKioskEvent } from '../lib/datalayer';
-
-trackKioskEvent('kiosk_idle', {
-  idle_duration: 10
-});
-```
-
 ### `initializeDataLayer(config)`
 
-Inicializa o DataLayer com configurações para quiosque:
+Inicializa o DataLayer:
 
 ```javascript
 import { initializeDataLayer } from '../lib/datalayer';
 
 initializeDataLayer({
-  enableHeartbeat: true,
-  heartbeatInterval: 25, // minutos
-  enableIdleDetection: true,
-  idleTimeout: 10, // minutos
   googleAnalyticsId: 'G-XXXXXXXXXX'
 });
 ```
