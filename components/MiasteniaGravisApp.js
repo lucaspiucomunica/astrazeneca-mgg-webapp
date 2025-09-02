@@ -116,21 +116,23 @@ const MiasteniaGravisApp = () => {
     setShowTranscription(false);
   };
 
-  // Efeito para inicializar o DataLayer e pausar reprodução ao sair da página
+  // Efeito para inicializar o DataLayer (apenas uma vez)
   useEffect(() => {
     // Inicializar DataLayer
     initializeDataLayer({
       googleAnalyticsId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null
     });
 
-    // Tracking da página inicial (home) quando a aplicação carrega
-    if (currentPage === 'home') {
-      saveNavigationEvent('page_view', 'home', {
-        fromPage: null,
-        timestamp: new Date().toISOString(),
-        isInitialLoad: true
-      });
-    }
+    // Tracking da página inicial (home) apenas no carregamento inicial
+    saveNavigationEvent('page_view', 'home', {
+      fromPage: null,
+      timestamp: new Date().toISOString(),
+      isInitialLoad: true
+    });
+  }, []); // Executar apenas uma vez no mount
+
+  // Efeito para controlar comportamentos quando a página muda
+  useEffect(() => {
     
     if (currentPage !== 'testimonials') {
       stopCurrentMedia();
@@ -303,8 +305,7 @@ const MiasteniaGravisApp = () => {
       const result = await response.json();
       
       if (result.success) {
-        console.log(`📋 Evento do quiz salvo no MongoDB: ${eventType}`, result.event);
-        console.log('📊 ID do evento:', result.eventId);
+        // Evento salvo com sucesso
       } else {
         console.error(`❌ Erro ao salvar evento ${eventType} no MongoDB:`, result.message);
       }
@@ -336,8 +337,7 @@ const MiasteniaGravisApp = () => {
       const result = await response.json();
       
       if (result.success) {
-        console.log(`🧭 Evento de navegação salvo no MongoDB: ${page}`, result.navigationEvent);
-        console.log('📊 ID do evento:', result.eventId);
+        // Evento salvo com sucesso
       } else {
         console.error(`❌ Erro ao salvar evento de navegação ${page} no MongoDB:`, result.message);
       }
@@ -374,8 +374,7 @@ const MiasteniaGravisApp = () => {
       const result = await response.json();
       
       if (result.success) {
-        console.log('💾 Avaliação salva no MongoDB:', result.rating);
-        console.log('📊 ID da avaliação:', result.ratingId);
+        // Avaliação salva com sucesso
       } else {
         console.error('❌ Erro ao salvar no MongoDB:', result.message);
         // Fallback para localStorage em caso de erro
@@ -386,7 +385,6 @@ const MiasteniaGravisApp = () => {
         };
         ratings.push(newRating);
         localStorage.setItem('immersion_ratings', JSON.stringify(ratings));
-        console.log('💾 Avaliação salva no localStorage como backup:', newRating);
       }
     } catch (error) {
       console.error('❌ Erro ao conectar com a API:', error);
@@ -398,7 +396,6 @@ const MiasteniaGravisApp = () => {
       };
       ratings.push(newRating);
       localStorage.setItem('immersion_ratings', JSON.stringify(ratings));
-      console.log('💾 Avaliação salva no localStorage como backup:', newRating);
     }
     
     // Barra de progresso fluída
