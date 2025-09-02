@@ -119,9 +119,7 @@ const MiasteniaGravisApp = () => {
   // Efeito para inicializar o DataLayer (apenas uma vez)
   useEffect(() => {
     // Inicializar DataLayer
-    initializeDataLayer({
-      googleAnalyticsId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || null
-    });
+    initializeDataLayer();
 
     // Tracking da página inicial (home) apenas no carregamento inicial
     saveNavigationEvent('page_view', 'home', {
