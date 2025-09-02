@@ -169,7 +169,7 @@ const MiasteniaGravisApp = () => {
       description: "Paciente de Miastenia Gravis",
       type: "audio",
       mediaUrl: "/audio/guilherme.mp3",
-      transcription: "Convivo com a Miastenia Gravis há 5 anos. No início foi difícil, mas com o tratamento adequado e apoio da família, hoje levo uma vida praticamente normal. O mais importante é não desistir e seguir as orientações médicas. Aprendi que cada dia é uma vitória e que somos mais fortes do que imaginamos."
+      transcription: "Tive o diagnóstico da Miastenia no ano de 2022. A visão ficou muito turva. Eu procurei oftalmologistas, me serviu alguma coisa relativo apenas a visão. Por volta de 4 a 5 meses passei por três oftalmologista, oito, neurologista. No nono neurologista eu consegui ter o diagnóstico da Miastenia, então ela só foi agravando após o diagnóstico. Eu não queria acreditar no que realmente estava acontecendo comigo, porque eu tinha uma vida normal, jogava bola, fazia academia.\n\nMinha vida era a vida movimentada. Acabou que eu fiquei assim, bem sedentário mesmo. Com os medicamentos, com depressão de não poder fazer as coisas que eu gosto de fazer, não poder jogar bola, não poder praticar um esporte. Eu ganhei muito peso. Eu saí de 91 para 119 quilos. Cheguei a ficar internado, tive uma falta de ar muito grande. Então foi acontecendo assim, uma coisa atrás da outra.\n\nTinha um ano que eu tinha divorciado, a empresa queria me desligar por causa da Miastenia, parece que você está no fundo do poço. E aí eu fiz um propósito que se eu saindo dali eu ia ter uma vida totalmente diferente e eu não entreguei. Fui mudando minha vida por completo. Hoje eu sei que a qualidade de vida só depende de mim, eu seguir o tratamento da melhor forma possível, então a vida que eu levo hoje é uma vida nova, uma vida diferente, mas com esportes novos, andar de bicicleta, fazer uma caminhada, poder ir na academia. Eu fiz um controle alimentar e de 119 quilos eu fui para 91 quilos. Eu me transformei sabendo amar, gostar e aproveitar melhor a vida."
     },
     {
       id: 2,
@@ -177,15 +177,15 @@ const MiasteniaGravisApp = () => {
       description: "Paciente de Miastenia Gravis",
       type: "audio",
       mediaUrl: "/audio/kenia.mp3",
-      transcription: "Convivo com a Miastenia Gravis há 5 anos. No início foi difícil, mas com o tratamento adequado e apoio da família, hoje levo uma vida praticamente normal. O mais importante é não desistir e seguir as orientações médicas. Aprendi que cada dia é uma vitória e que somos mais fortes do que imaginamos."
+      transcription: "Tive o diagnóstico de minha Miastenia Gravis em 2020 e profissionalmente hoje eu sou advogada. Os primeiros sintomas surgiram com fraquezas e fadiga. Eu tinha uma fraqueza tão grande, mas tão grande, que eu não conseguia dirigir. E eu procurei uma médica em São Paulo. Essa médica foi a primeira médica a me dar atenção. Aí ela começou a me fazer várias perguntas e ela pediu uma avaliação rigorosa com o neurologista.\n\nE foi a partir daí que começou a investigação. Aí demorou um ano para eu poder fechar o diagnóstico e depois do diagnóstico eu comecei tratamentos, mas nada dava um resultado muito bom. Eu tive muitas crises, muitas internações, tive uma crise grave que eu precisei ficar na UTI e precisei trancar a faculdade por diversas vezes. Mas terminei e o diagnóstico da minha Miastenia Gravis na minha vida e me possibilitou enxergar a vida com outros olhos.\n\nNão é romantizar, mas depois que você tem de você tem que transformar. E é isso que eu escolhi fazer. Eu optei por viver um dia de cada vez, com qualidade de vida e da melhor forma possível."
     },
     {
       id: 3,
       name: "Gabriel, Lua e Tayná",
       description: "Pacientes de Miastenia Gravis",
       type: "video",
-      mediaUrl: "/video/miastenia-gravis.webm",
-      transcription: "O diagnóstico precoce fez toda a diferença na minha vida. Hoje pratico exercícios leves, trabalho normalmente e cuido da minha família. A Miastenia Gravis não define quem eu sou. É parte da minha jornada, mas não é meu destino. Com o apoio médico certo, consegui retomar minhas atividades."
+      mediaUrl: "/video/Miastenia-gravis.webm",
+      transcription: null
     },
   ];
 
@@ -737,22 +737,28 @@ const MiasteniaGravisApp = () => {
                     </div>
                   )}
 
-                  {/* Botão de transcrição */}
-                  <button
-                    onClick={() => setShowTranscription(!showTranscription)}
-                    className="mb-4 text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-2"
-                  >
-                    <FileText className="w-5 h-5" />
-                    {showTranscription ? 'Ocultar' : 'Mostrar'} Transcrição
-                  </button>
+                  {/* Botão de transcrição - só aparece se houver transcrição */}
+                  {testimonials[currentTestimonial].transcription && (
+                    <button
+                      onClick={() => setShowTranscription(!showTranscription)}
+                      className="mb-4 text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-2"
+                    >
+                      <FileText className="w-5 h-5" />
+                      {showTranscription ? 'Ocultar' : 'Mostrar'} Transcrição
+                    </button>
+                  )}
 
                   {/* Transcrição */}
-                  {showTranscription && (
+                  {showTranscription && testimonials[currentTestimonial].transcription && (
                     <div className="bg-white bg-opacity-70 rounded-lg p-4 mb-4">
                       <h5 className="font-semibold text-gray-800 mb-2">Transcrição:</h5>
-                      <p className="text-gray-700 leading-relaxed">
-                        &quot;{testimonials[currentTestimonial].transcription}&quot;
-                      </p>
+                      <div className="text-gray-700 leading-relaxed">
+                        {testimonials[currentTestimonial].transcription.split('\n\n').map((paragraph, index, array) => (
+                          <p key={index} className={index > 0 ? 'mt-4' : ''}>
+                            {index === 0 && '\"'}{paragraph}{index === array.length - 1 && '\"'}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   )}
 
