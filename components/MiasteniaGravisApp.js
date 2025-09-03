@@ -14,6 +14,7 @@ const MiasteniaGravisApp = () => {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizEverCompleted, setQuizEverCompleted] = useState(false);
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
   const [showRating, setShowRating] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
@@ -253,6 +254,7 @@ const MiasteniaGravisApp = () => {
       setShowResult(false);
     } else {
       setQuizCompleted(true);
+      setQuizEverCompleted(true);
       
       // Tracking de conclusão do quiz
       // score já está atualizado pelo handleAnswerSelect, não precisa somar +1 novamente
@@ -440,7 +442,8 @@ const MiasteniaGravisApp = () => {
 
   const navigateTo = (page) => {
     // Tracking de abandono do quiz se sair da página quiz sem completar
-    if (currentPage === 'quiz' && page !== 'quiz' && !quizCompleted) {
+    // Só dispara se nunca completou o quiz nesta sessão
+    if (currentPage === 'quiz' && page !== 'quiz' && !quizCompleted && !quizEverCompleted) {
       saveQuizEvent('quiz_abandoned', {
         questionIndex: currentQuestionIndex,
         totalQuestions: quizQuestions.length,
