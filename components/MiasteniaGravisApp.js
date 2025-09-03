@@ -169,7 +169,7 @@ const MiasteniaGravisApp = () => {
       description: "Paciente de Miastenia Gravis",
       type: "audio",
       mediaUrl: "/audio/guilherme.mp3",
-      transcription: "Tive o diagnóstico da Miastenia no ano de 2022. A visão ficou muito turva. Eu procurei oftalmologistas, me serviu alguma coisa relativo apenas a visão. Por volta de 4 a 5 meses passei por três oftalmologista, oito, neurologista. No nono neurologista eu consegui ter o diagnóstico da Miastenia, então ela só foi agravando após o diagnóstico. Eu não queria acreditar no que realmente estava acontecendo comigo, porque eu tinha uma vida normal, jogava bola, fazia academia.\n\nMinha vida era a vida movimentada. Acabou que eu fiquei assim, bem sedentário mesmo. Com os medicamentos, com depressão de não poder fazer as coisas que eu gosto de fazer, não poder jogar bola, não poder praticar um esporte. Eu ganhei muito peso. Eu saí de 91 para 119 quilos. Cheguei a ficar internado, tive uma falta de ar muito grande. Então foi acontecendo assim, uma coisa atrás da outra.\n\nTinha um ano que eu tinha divorciado, a empresa queria me desligar por causa da Miastenia, parece que você está no fundo do poço. E aí eu fiz um propósito que se eu saindo dali eu ia ter uma vida totalmente diferente e eu não entreguei. Fui mudando minha vida por completo. Hoje eu sei que a qualidade de vida só depende de mim, eu seguir o tratamento da melhor forma possível, então a vida que eu levo hoje é uma vida nova, uma vida diferente, mas com esportes novos, andar de bicicleta, fazer uma caminhada, poder ir na academia. Eu fiz um controle alimentar e de 119 quilos eu fui para 91 quilos. Eu me transformei sabendo amar, gostar e aproveitar melhor a vida."
+      transcription: "Tive o diagnóstico da Miastenia no ano de 2022. A visão ficou muito turva. Eu procurei oftalmologistas, me serviu alguma coisa relativo apenas a visão. Por volta de 4 a 5 meses passei por três oftalmologista, oito, neurologista. No nono neurologista eu consegui ter o diagnóstico da Miastenia, então ela só foi agravando após o diagnóstico. Eu não queria acreditar no que realmente estava acontecendo comigo, porque eu tinha uma vida normal, jogava bola, fazia academia.\n\nMinha vida era a vida movimentada. Acabou que eu fiquei assim, bem sedentário mesmo. Com os medicamentos, com depressão de não poder fazer as coisas que eu gosto de fazer, não poder jogar bola, não poder praticar um esporte. Eu ganhei muito peso. Eu saí de 91 para 119kg. Cheguei a ficar internado, tive uma falta de ar muito grande. Então foi acontecendo assim, uma coisa atrás da outra.\n\nTinha um ano que eu tinha divorciado, a empresa queria me desligar por causa da Miastenia, parece que você está no fundo do poço. E aí eu fiz um propósito que se eu saindo dali eu ia ter uma vida totalmente diferente e eu não entreguei. Fui mudando minha vida por completo. Hoje eu sei que a qualidade de vida só depende de mim, eu seguir o tratamento da melhor forma possível, então a vida que eu levo hoje é uma vida nova, uma vida diferente, mas com esportes novos, andar de bicicleta, fazer uma caminhada, poder ir na academia. Eu fiz um controle alimentar e de 119kg eu fui para 91kg. Eu me transformei sabendo amar, gostar e aproveitar melhor a vida."
     },
     {
       id: 2,
@@ -184,7 +184,7 @@ const MiasteniaGravisApp = () => {
       name: "Gabriel, Lua e Tayná",
       description: "Pacientes de Miastenia Gravis",
       type: "video",
-      mediaUrl: "/video/Miastenia-gravis.webm",
+      mediaUrl: "/video/miastenia-gravis.webm",
       transcription: null
     },
   ];
@@ -583,8 +583,8 @@ const MiasteniaGravisApp = () => {
                   onClick={playHeroVideo}
                 >
                   <img 
-                    src="/images/thumb-video.png" 
-                    alt="A tempestade vai e a vida volta - Ilustração de mulher navegando" 
+                    src="/images/thumb-video-hero.webp" 
+                    alt="A tempestade vai e a vida volta" 
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/20 bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
@@ -596,7 +596,7 @@ const MiasteniaGravisApp = () => {
               ) : (
                 <video
                   ref={heroVideoRef}
-                  src="/video/teaser.mp4"
+                  src="/video/miastenia-gravis-hero.webm"
                   className="w-full h-full object-cover"
                   controls
                   autoPlay
