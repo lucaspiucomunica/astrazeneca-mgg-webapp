@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
-import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer } from '../lib/datalayer';
+import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer, initializeKioskMode } from '../lib/datalayer';
 
 const MiasteniaGravisApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -120,6 +120,10 @@ const MiasteniaGravisApp = () => {
   useEffect(() => {
     // Inicializar DataLayer
     initializeDataLayer();
+
+    // Inicializar modo quiosque (heartbeat + monitor de inatividade)
+    // 30 minutos de inatividade por padrão
+    initializeKioskMode(30);
 
     // Tracking da página inicial (home) apenas no carregamento inicial
     saveNavigationEvent('page_view', 'home', {
