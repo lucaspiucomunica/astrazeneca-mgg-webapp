@@ -24,6 +24,7 @@ const MiasteniaGravisApp = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
+  const [isTestimonialVideoPlaying, setIsTestimonialVideoPlaying] = useState({});
   const [showRating, setShowRating] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
   const [selectedRating, setSelectedRating] = useState(null);
@@ -119,6 +120,15 @@ const MiasteniaGravisApp = () => {
         console.error('Erro ao reproduzir vídeo:', error);
       });
     }
+  };
+
+  // Função para tocar vídeo de depoimentos
+  const playTestimonialVideo = (testimonialId) => {
+    setIsTestimonialVideoPlaying(prev => ({
+      ...prev,
+      [testimonialId]: true
+    }));
+    trackNavigationEvent('testimonial_video_play', { testimonialId });
   };
 
   // Função para lidar com o fim da reprodução
@@ -275,17 +285,45 @@ const MiasteniaGravisApp = () => {
     return testimonials.map((testimonial) => ({
       ...testimonial,
       element: testimonial.type === 'video' ? (
-        <video
-          key={testimonial.id}
-          src={testimonial.mediaUrl}
-          className="w-full h-full object-cover"
-          controls
-          onEnded={handleMediaEnded}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          preload="none"
-          loading="lazy"
-        />
+        !isTestimonialVideoPlaying[testimonial.id] ? (
+          <div 
+            key={testimonial.id}
+            className="group cursor-pointer w-full h-full relative"
+            onClick={() => playTestimonialVideo(testimonial.id)}
+          >
+            <Image 
+              src="/images/thumb-video-depoimentos.webp" 
+              alt="Depoimento em vídeo" 
+              fill
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/20 bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+              <div className="bg-white bg-opacity-90 rounded-full p-3 transform scale-100 group-hover:scale-110 transition-all">
+                <Play className="w-8 h-8 text-purple-600" />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <video
+            key={testimonial.id}
+            src={testimonial.mediaUrl}
+            className="w-full h-full object-cover"
+            controls
+            autoPlay
+            onEnded={() => {
+              setIsTestimonialVideoPlaying(prev => ({
+                ...prev,
+                [testimonial.id]: false
+              }));
+              handleMediaEnded();
+            }}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            preload="none"
+            loading="lazy"
+          />
+        )
       ) : (
         <audio
           key={testimonial.id}
@@ -299,7 +337,7 @@ const MiasteniaGravisApp = () => {
         />
       )
     }));
-  }, [testimonials, handleMediaEnded, handlePlay, handlePause]);
+  }, [testimonials, isTestimonialVideoPlaying, handleMediaEnded, handlePlay, handlePause, playTestimonialVideo]);
 
   // Perguntas do Quiz
   const quizQuestions = [
