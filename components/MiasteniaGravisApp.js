@@ -4,6 +4,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
 import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer, initializeKioskMode } from '../lib/datalayer';
 
+// Swiper imports
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, A11y } from 'swiper/modules';
+
+// Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
+
 const MiasteniaGravisApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
@@ -24,6 +32,7 @@ const MiasteniaGravisApp = () => {
   const audioRef = useRef(null);
   const videoRef = useRef(null);
   const heroVideoRef = useRef(null);
+  const swiperRef = useRef(null);
 
   // Dados das associações
   const associations = [
@@ -116,6 +125,13 @@ const MiasteniaGravisApp = () => {
     setShowTranscription(false);
   };
 
+  // Função para lidar com mudança de slide do Swiper
+  const handleSlideChange = (swiper) => {
+    stopCurrentMedia();
+    setCurrentTestimonial(swiper.activeIndex);
+    setShowTranscription(false);
+  };
+
   // Efeito para inicializar o DataLayer (apenas uma vez)
   useEffect(() => {
     // Inicializar DataLayer
@@ -131,6 +147,48 @@ const MiasteniaGravisApp = () => {
       timestamp: new Date().toISOString(),
       isInitialLoad: true
     });
+
+    // Adicionar estilos customizados do Swiper
+    const swiperCustomStyles = `
+      .testimonials-swiper {
+        position: relative;
+      }
+
+      .swiper-pagination-bullet-custom {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #d1d5db;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 1;
+      }
+
+      .swiper-pagination-bullet-active-custom {
+        background-color: #7c3aed;
+        width: 32px;
+        border-radius: 6px;
+      }
+
+      .swiper-pagination-bullet-custom:hover {
+        background-color: #9ca3af;
+      }
+
+      .swiper {
+        height: auto !important;
+      }
+
+      .swiper-slide {
+        height: auto !important;
+      }
+    `;
+
+    if (!document.querySelector('#swiper-custom-styles')) {
+      const style = document.createElement('style');
+      style.id = 'swiper-custom-styles';
+      style.textContent = swiperCustomStyles;
+      document.head.appendChild(style);
+    }
   }, []); // Executar apenas uma vez no mount
 
   // Efeito para controlar comportamentos quando a página muda
@@ -688,103 +746,118 @@ const MiasteniaGravisApp = () => {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h4 className="text-xl font-bold text-purple-800">
-                        {testimonials[currentTestimonial].name}
-                      </h4>
-                      <p className="text-gray-600 flex items-center gap-2">
-                        {testimonials[currentTestimonial].description}
-                        {testimonials[currentTestimonial].type === 'video' ? 
-                          <Video className="w-4 h-4" /> : 
-                          <Volume2 className="w-4 h-4" />
-                        }
-                      </p>
-                    </div>
-                    <button
-                      onClick={togglePlayPause}
-                      className="bg-purple-600 text-white p-4 rounded-full hover:bg-purple-700 transition-colors shadow-lg"
-                    >
-                      {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
-                    </button>
-                  </div>
+                {/* Swiper Container */}
+                <div className="testimonials-swiper bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-6 h-auto">
+                  <Swiper
+                    ref={swiperRef}
+                    modules={[Pagination, A11y]}
+                    spaceBetween={30}
+                    slidesPerView={1}
+                    autoHeight={true}
+                    pagination={{
+                      clickable: true,
+                      el: '.swiper-pagination-custom',
+                      bulletClass: 'swiper-pagination-bullet-custom',
+                      bulletActiveClass: 'swiper-pagination-bullet-active-custom',
+                    }}
+                    onSlideChange={handleSlideChange}
+                    className="w-full"
+                  >
+                    {testimonials.map((testimonial, index) => (
+                      <SwiperSlide key={testimonial.id}>
+                        <div className="">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h4 className="text-xl font-bold text-purple-800">
+                                {testimonial.name}
+                              </h4>
+                              <p className="text-gray-600 flex items-center gap-2">
+                                {testimonial.description}
+                                {testimonial.type === 'video' ? 
+                                  <Video className="w-4 h-4" /> : 
+                                  <Volume2 className="w-4 h-4" />
+                                }
+                              </p>
+                            </div>
+                            <button
+                              onClick={togglePlayPause}
+                              className="bg-purple-600 text-white p-4 rounded-full hover:bg-purple-700 transition-colors shadow-lg"
+                            >
+                              {isPlaying && currentTestimonial === index ? 
+                                <Pause className="w-6 h-6" /> : 
+                                <Play className="w-6 h-6" />
+                              }
+                            </button>
+                          </div>
 
-                  {/* Área do player de vídeo/áudio */}
-                  {testimonials[currentTestimonial].type === 'video' ? (
-                    <div className="mb-4 rounded-lg overflow-hidden aspect-video">
-                      <video
-                        ref={videoRef}
-                        src={testimonials[currentTestimonial].mediaUrl}
-                        className="w-full h-full object-cover"
-                        controls
-                        onEnded={handleMediaEnded}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                      />
-                    </div>
-                  ) : (
-                    <div className="mb-4 bg-white bg-opacity-50 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Volume2 className="w-5 h-5 text-purple-600" />
-                        <span className="text-sm text-gray-700 font-medium">Depoimento em Áudio</span>
-                      </div>
-                      <audio
-                        ref={audioRef}
-                        src={testimonials[currentTestimonial].mediaUrl}
-                        className="w-full"
-                        controls
-                        onEnded={handleMediaEnded}
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                      />
-                    </div>
-                  )}
+                          {/* Área do player de vídeo/áudio */}
+                          {testimonial.type === 'video' ? (
+                            <div className="mb-4 rounded-lg overflow-hidden aspect-video">
+                              <video
+                                ref={currentTestimonial === index ? videoRef : null}
+                                src={testimonial.mediaUrl}
+                                className="w-full h-full object-cover"
+                                controls
+                                onEnded={handleMediaEnded}
+                                onPlay={() => setIsPlaying(true)}
+                                onPause={() => setIsPlaying(false)}
+                              />
+                            </div>
+                          ) : (
+                            <div className="mb-4 bg-white bg-opacity-50 rounded-lg p-4">
+                              <div className="flex items-center gap-3 mb-2">
+                                <Volume2 className="w-5 h-5 text-purple-600" />
+                                <span className="text-sm text-gray-700 font-medium">Depoimento em Áudio</span>
+                              </div>
+                              <audio
+                                ref={currentTestimonial === index ? audioRef : null}
+                                src={testimonial.mediaUrl}
+                                className="w-full"
+                                controls
+                                onEnded={handleMediaEnded}
+                                onPlay={() => setIsPlaying(true)}
+                                onPause={() => setIsPlaying(false)}
+                              />
+                            </div>
+                          )}
 
-                  {/* Botão de transcrição - só aparece se houver transcrição */}
-                  {testimonials[currentTestimonial].transcription && (
-                    <button
-                      onClick={() => setShowTranscription(!showTranscription)}
-                      className="mb-4 text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-2"
-                    >
-                      <FileText className="w-5 h-5" />
-                      {showTranscription ? 'Ocultar' : 'Mostrar'} Transcrição
-                    </button>
-                  )}
+                          {/* Botão de transcrição - só aparece se houver transcrição */}
+                          {testimonial.transcription && (
+                            <button
+                              onClick={() => setShowTranscription(!showTranscription)}
+                              className="mb-4 text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-2"
+                            >
+                              <FileText className="w-5 h-5" />
+                              {showTranscription ? 'Ocultar' : 'Mostrar'} Transcrição
+                            </button>
+                          )}
 
-                  {/* Transcrição */}
-                  {showTranscription && testimonials[currentTestimonial].transcription && (
-                    <div className="bg-white bg-opacity-70 rounded-lg p-4 mb-4">
-                      <h5 className="font-semibold text-gray-800 mb-2">Transcrição:</h5>
-                      <div className="text-gray-700 leading-relaxed">
-                        {testimonials[currentTestimonial].transcription.split('\n\n').map((paragraph, index, array) => (
-                          <p key={index} className={index > 0 ? 'mt-4' : ''}>
-                            {index === 0 && '\"'}{paragraph}{index === array.length - 1 && '\"'}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-center gap-2">
-                    {testimonials.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => changeTestimonial(index)}
-                        className={`w-3 h-3 rounded-full transition-all ${
-                          currentTestimonial === index
-                            ? 'bg-purple-600 w-8'
-                            : 'bg-gray-300 hover:bg-gray-400'
-                        }`}
-                      />
+                          {/* Transcrição */}
+                          {showTranscription && testimonial.transcription && (
+                            <div className="bg-white bg-opacity-70 rounded-lg p-4 mb-4">
+                              <h5 className="font-semibold text-gray-800 mb-2">Transcrição:</h5>
+                              <div className="text-gray-700 leading-relaxed">
+                                {testimonial.transcription.split('\n\n').map((paragraph, index, array) => (
+                                  <p key={index} className={index > 0 ? 'mt-4' : ''}>
+                                    {index === 0 && '\"'}{paragraph}{index === array.length - 1 && '\"'}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </SwiperSlide>
                     ))}
-                  </div>
+                  </Swiper>
+
+                  {/* Custom Pagination */}
+                  <div className="swiper-pagination-custom flex justify-center gap-2 mt-6"></div>
                 </div>
 
                 <div className="bg-blue-50 rounded-lg p-4 flex items-center gap-3">
                   <Headphones className="w-6 h-6 text-blue-600" />
                   <p className="text-sm text-blue-800">
-                    Use os fones de ouvido para uma melhor experiência
+                    Use os fones de ouvido para uma melhor experiência. Deslize para navegar entre os depoimentos.
                   </p>
                 </div>
               </div>
