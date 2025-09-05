@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
 import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer, initializeKioskMode } from '../lib/datalayer';
-import AssetCache from './AssetCache';
 
 // Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -75,7 +74,7 @@ const MiasteniaGravisApp = () => {
     const currentTestimonialData = testimonials[currentTestimonial];
     const mediaType = currentTestimonialData.type;
     
-    // Usar o elemento HTML existente (não substituir pelo cache)
+    // Usar o elemento HTML existente
     const currentMedia = mediaType === 'video' ? videoRef.current : audioRef.current;
     
     if (currentMedia) {
@@ -217,9 +216,6 @@ const MiasteniaGravisApp = () => {
         heroVideoRef.current.currentTime = 0;
       }
     }
-    
-    // Log para debug
-    console.log('📊 Página alterada para:', currentPage);
     
     // Tracking do início do quiz
     if (currentPage === 'quiz' && currentQuestionIndex === 0 && !quizCompleted && !showResult) {
@@ -649,8 +645,6 @@ const MiasteniaGravisApp = () => {
   if (currentPage === 'home') {
       return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      {/* Componente para gerenciar cache de assets no Kiosker.IO */}
-      <AssetCache />
       
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -737,8 +731,6 @@ const MiasteniaGravisApp = () => {
   // Páginas internas com botão voltar
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-      {/* Componente para gerenciar cache de assets no Kiosker.IO */}
-      <AssetCache />
       
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg">
@@ -829,7 +821,7 @@ const MiasteniaGravisApp = () => {
                                 onEnded={handleMediaEnded}
                                 onPlay={() => setIsPlaying(true)}
                                 onPause={() => setIsPlaying(false)}
-                                preload="none"
+                                preload="metadata"
                               />
                             </div>
                           ) : (
@@ -846,7 +838,7 @@ const MiasteniaGravisApp = () => {
                                 onEnded={handleMediaEnded}
                                 onPlay={() => setIsPlaying(true)}
                                 onPause={() => setIsPlaying(false)}
-                                preload="none"
+                                preload="metadata"
                               />
                             </div>
                           )}
