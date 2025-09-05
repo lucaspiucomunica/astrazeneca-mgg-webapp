@@ -57,11 +57,6 @@ const nextConfig = {
   // Otimizações para produção
   compress: true,
   poweredByHeader: false,
-  
-  // Configurações para PWA (opcional)
-  experimental: {
-    optimizeCss: true,
-  },
 };
 
 export default nextConfig;
