@@ -4,18 +4,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Cache para imagens, vídeos e áudios
-        source: '/(.*\\.(png|jpg|jpeg|gif|webp|svg|ico|mp3|mp4|webm|ogg|wav))',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable', // 1 ano
-          },
-        ],
-      },
-      {
-        // Cache para arquivos estáticos
-        source: '/_next/static/(.*)',
+        // Cache para imagens
+        source: '/images/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -24,8 +14,28 @@ const nextConfig = {
         ],
       },
       {
-        // Cache para CSS e JS
-        source: '/_next/static/css/(.*)',
+        // Cache para vídeos
+        source: '/video/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Cache para áudios
+        source: '/audio/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Cache para arquivos estáticos do Next.js
+        source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -39,11 +49,6 @@ const nextConfig = {
   // Otimizações para produção
   compress: true,
   poweredByHeader: false,
-  
-  // Configurações para Kiosker.IO
-  experimental: {
-    optimizeCss: true,
-  },
 };
 
 export default nextConfig;
