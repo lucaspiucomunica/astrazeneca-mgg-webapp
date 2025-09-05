@@ -902,7 +902,7 @@ const MiasteniaGravisApp = () => {
                                 }
                               </p>
                             </div>
-                            {testimonial.type === 'video' && isTestimonialVideoPlaying[testimonial.id] && (
+                            {(testimonial.type === 'video' && isTestimonialVideoPlaying[testimonial.id]) || testimonial.type === 'audio' ? (
                               <button
                                 onClick={togglePlayPause}
                                 className="bg-purple-600 text-white p-4 rounded-full hover:bg-purple-700 transition-colors shadow-lg"
@@ -912,7 +912,7 @@ const MiasteniaGravisApp = () => {
                                   <Play className="w-6 h-6" />
                                 }
                               </button>
-                            )}
+                            ) : null}
                           </div>
 
                           {/* Área do player de vídeo/áudio */}
