@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
 import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer, initializeKioskMode } from '../lib/datalayer';
-import CacheStatus from './CacheStatus';
 
 // Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -34,38 +33,6 @@ const MiasteniaGravisApp = () => {
   const videoRef = useRef(null);
   const heroVideoRef = useRef(null);
   const swiperRef = useRef(null);
-
-  // Função para preload de assets
-  const preloadAssets = () => {
-    const assets = [
-      '/audio/guilherme.mp3',
-      '/audio/kenia.mp3',
-      '/video/miastenia-gravis-hero.webm',
-      '/video/miastenia-gravis.webm',
-      '/images/thumb-video-hero.webp',
-      '/images/qr-code.png',
-      '/images/logo-abrami.webp',
-      '/images/logo-afag.webp',
-      '/images/logo-AMMI.webp',
-      '/images/logo-casahunter.webp',
-    ];
-
-    assets.forEach(asset => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.href = asset;
-      
-      if (asset.includes('.mp3')) {
-        link.as = 'audio';
-      } else if (asset.includes('.webm')) {
-        link.as = 'video';
-      } else if (asset.includes('.webp') || asset.includes('.png')) {
-        link.as = 'image';
-      }
-      
-      document.head.appendChild(link);
-    });
-  };
 
   // Dados das associações
   const associations = [
@@ -174,9 +141,6 @@ const MiasteniaGravisApp = () => {
 
   // Efeito para inicializar o DataLayer (apenas uma vez)
   useEffect(() => {
-    // Preload assets quando o componente montar
-    preloadAssets();
-    
     // Inicializar DataLayer
     initializeDataLayer();
 
@@ -1192,9 +1156,6 @@ const MiasteniaGravisApp = () => {
           </div>
         </div>
       </div>
-      
-      {/* Componente de monitoramento de cache */}
-      <CacheStatus />
     </div>
   );
 };
