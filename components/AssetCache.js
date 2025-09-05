@@ -13,7 +13,8 @@ const AssetCache = () => {
     loaded: 0,
     total: 0,
     errors: 0,
-    completed: false
+    completed: false,
+    cacheVerified: false
   });
 
   useEffect(() => {
@@ -42,7 +43,8 @@ const AssetCache = () => {
       loaded: 0,
       total: assets.length,
       errors: 0,
-      completed: false
+      completed: false,
+      cacheVerified: false
     });
 
     // Função para pré-carregar um asset
@@ -52,39 +54,67 @@ const AssetCache = () => {
       }
 
       return new Promise((resolve, reject) => {
-        // Para vídeos e áudios, usar fetch para forçar o download
-        if (url.includes('.mp3') || url.includes('.wav') || url.includes('.ogg') || 
-            url.includes('.webm') || url.includes('.mp4')) {
+        // Para vídeos, criar elemento video oculto para forçar cache
+        if (url.includes('.webm') || url.includes('.mp4')) {
+          const video = document.createElement('video');
+          video.style.display = 'none';
+          video.preload = 'auto';
+          video.src = url;
           
-          fetch(url, { 
-            method: 'HEAD', // Apenas verificar se o arquivo existe
-            cache: 'force-cache' // Forçar cache
-          })
-          .then(() => {
-            // Se o HEAD funcionou, fazer o download completo
-            return fetch(url, { cache: 'force-cache' });
-          })
-          .then(response => {
-            if (response.ok) {
-              preloadedAssets.current.add(url);
-              console.log(`✅ Asset pré-carregado: ${url}`);
-              setCacheStatus(prev => ({
-                ...prev,
-                loaded: prev.loaded + 1
-              }));
-              resolve();
-            } else {
-              throw new Error(`HTTP ${response.status}`);
-            }
-          })
-          .catch(error => {
-            console.warn(`⚠️ Falha ao pré-carregar: ${url} - ${error.message}`);
+          video.onloadeddata = () => {
+            preloadedAssets.current.add(url);
+            console.log(`✅ Vídeo pré-carregado: ${url}`);
+            setCacheStatus(prev => ({
+              ...prev,
+              loaded: prev.loaded + 1
+            }));
+            // Manter o elemento para garantir cache
+            document.body.appendChild(video);
+            resolve();
+          };
+          
+          video.onerror = () => {
+            console.warn(`⚠️ Falha ao pré-carregar vídeo: ${url}`);
             setCacheStatus(prev => ({
               ...prev,
               errors: prev.errors + 1
             }));
-            reject(error);
-          });
+            reject();
+          };
+          
+          // Iniciar carregamento
+          video.load();
+          
+        } else if (url.includes('.mp3') || url.includes('.wav') || url.includes('.ogg')) {
+          // Para áudios, criar elemento audio oculto para forçar cache
+          const audio = document.createElement('audio');
+          audio.style.display = 'none';
+          audio.preload = 'auto';
+          audio.src = url;
+          
+          audio.onloadeddata = () => {
+            preloadedAssets.current.add(url);
+            console.log(`✅ Áudio pré-carregado: ${url}`);
+            setCacheStatus(prev => ({
+              ...prev,
+              loaded: prev.loaded + 1
+            }));
+            // Manter o elemento para garantir cache
+            document.body.appendChild(audio);
+            resolve();
+          };
+          
+          audio.onerror = () => {
+            console.warn(`⚠️ Falha ao pré-carregar áudio: ${url}`);
+            setCacheStatus(prev => ({
+              ...prev,
+              errors: prev.errors + 1
+            }));
+            reject();
+          };
+          
+          // Iniciar carregamento
+          audio.load();
           
         } else {
           // Para imagens, usar o método tradicional com link preload
@@ -95,7 +125,7 @@ const AssetCache = () => {
           
           link.onload = () => {
             preloadedAssets.current.add(url);
-            console.log(`✅ Asset pré-carregado: ${url}`);
+            console.log(`✅ Imagem pré-carregada: ${url}`);
             setCacheStatus(prev => ({
               ...prev,
               loaded: prev.loaded + 1
@@ -103,7 +133,7 @@ const AssetCache = () => {
             resolve();
           };
           link.onerror = () => {
-            console.warn(`⚠️ Falha ao pré-carregar: ${url}`);
+            console.warn(`⚠️ Falha ao pré-carregar imagem: ${url}`);
             setCacheStatus(prev => ({
               ...prev,
               errors: prev.errors + 1
@@ -116,6 +146,54 @@ const AssetCache = () => {
       });
     };
 
+    // Função para verificar se o cache está funcionando
+    const verifyCache = async () => {
+      console.log('🔍 Verificando se o cache está funcionando...');
+      
+      // Testar um asset pequeno (imagem) para verificar cache
+      const testAsset = '/images/qr-code.png';
+      
+      try {
+        // Primeira requisição (deve ser do servidor)
+        const start1 = performance.now();
+        const response1 = await fetch(testAsset, { cache: 'no-cache' });
+        const end1 = performance.now();
+        const time1 = end1 - start1;
+        
+        // Segunda requisição (deve ser do cache)
+        const start2 = performance.now();
+        const response2 = await fetch(testAsset, { cache: 'force-cache' });
+        const end2 = performance.now();
+        const time2 = end2 - start2;
+        
+        console.log(`📊 Tempo primeira requisição: ${time1.toFixed(2)}ms`);
+        console.log(`📊 Tempo segunda requisição: ${time2.toFixed(2)}ms`);
+        
+        // Se a segunda requisição for muito mais rápida, o cache está funcionando
+        const cacheWorking = time2 < time1 * 0.5; // 50% mais rápido
+        
+        if (cacheWorking) {
+          console.log('✅ Cache está funcionando corretamente!');
+          setCacheStatus(prev => ({
+            ...prev,
+            cacheVerified: true
+          }));
+        } else {
+          console.warn('⚠️ Cache pode não estar funcionando adequadamente');
+          setCacheStatus(prev => ({
+            ...prev,
+            cacheVerified: false
+          }));
+        }
+      } catch (error) {
+        console.error('❌ Erro ao verificar cache:', error);
+        setCacheStatus(prev => ({
+          ...prev,
+          cacheVerified: false
+        }));
+      }
+    };
+
     // Pré-carregar todos os assets
     const preloadAllAssets = async () => {
       console.log('🚀 Iniciando pré-carregamento de assets para Kiosker.IO...');
@@ -123,11 +201,16 @@ const AssetCache = () => {
       try {
         await Promise.allSettled(assets.map(preloadAsset));
         console.log('✅ Todos os assets foram pré-carregados com sucesso!');
+        
         setCacheStatus(prev => ({
           ...prev,
           loading: false,
           completed: true
         }));
+        
+        // Verificar se o cache está funcionando após 2 segundos
+        setTimeout(verifyCache, 2000);
+        
       } catch (error) {
         console.error('❌ Erro ao pré-carregar assets:', error);
         setCacheStatus(prev => ({
@@ -157,21 +240,33 @@ const AssetCache = () => {
   const getStatusColor = () => {
     if (cacheStatus.loading) return 'bg-yellow-500';
     if (cacheStatus.errors > 0) return 'bg-red-500';
-    if (cacheStatus.completed && cacheStatus.loaded === cacheStatus.total) return 'bg-green-500';
+    if (cacheStatus.completed && cacheStatus.loaded === cacheStatus.total) {
+      if (cacheStatus.cacheVerified === true) return 'bg-green-500';
+      if (cacheStatus.cacheVerified === false) return 'bg-orange-500';
+      return 'bg-blue-500';
+    }
     return 'bg-gray-500';
   };
 
   const getStatusText = () => {
     if (cacheStatus.loading) return '🔄 Cache';
     if (cacheStatus.errors > 0) return '❌ Cache';
-    if (cacheStatus.completed && cacheStatus.loaded === cacheStatus.total) return '✅ Cache';
+    if (cacheStatus.completed && cacheStatus.loaded === cacheStatus.total) {
+      if (cacheStatus.cacheVerified === true) return '✅ Cache OK';
+      if (cacheStatus.cacheVerified === false) return '⚠️ Cache?';
+      return '🔍 Verificando...';
+    }
     return '⏳ Cache';
   };
 
   const getStatusDetails = () => {
     if (cacheStatus.loading) return `${cacheStatus.loaded}/${cacheStatus.total}`;
     if (cacheStatus.errors > 0) return `${cacheStatus.errors} erro(s)`;
-    if (cacheStatus.completed) return `${cacheStatus.loaded}/${cacheStatus.total}`;
+    if (cacheStatus.completed) {
+      if (cacheStatus.cacheVerified === true) return 'Funcionando';
+      if (cacheStatus.cacheVerified === false) return 'Problema?';
+      return `${cacheStatus.loaded}/${cacheStatus.total}`;
+    }
     return '';
   };
 
