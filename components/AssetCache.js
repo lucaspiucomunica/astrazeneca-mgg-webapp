@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * Componente para gerenciar cache de assets no Kiosker.IO
@@ -8,6 +8,13 @@ import { useEffect, useRef } from 'react';
  */
 const AssetCache = () => {
   const preloadedAssets = useRef(new Set());
+  const [cacheStatus, setCacheStatus] = useState({
+    loading: true,
+    loaded: 0,
+    total: 0,
+    errors: 0,
+    completed: false
+  });
 
   useEffect(() => {
     // Lista de todos os assets que precisam ser pré-carregados
@@ -28,6 +35,15 @@ const AssetCache = () => {
       '/images/logo-casahunter.webp',
       '/images/qr-code.png',
     ];
+
+    // Inicializar status
+    setCacheStatus({
+      loading: true,
+      loaded: 0,
+      total: assets.length,
+      errors: 0,
+      completed: false
+    });
 
     // Função para pré-carregar um asset
     const preloadAsset = (url) => {
@@ -52,6 +68,10 @@ const AssetCache = () => {
             if (response.ok) {
               preloadedAssets.current.add(url);
               console.log(`✅ Asset pré-carregado: ${url}`);
+              setCacheStatus(prev => ({
+                ...prev,
+                loaded: prev.loaded + 1
+              }));
               resolve();
             } else {
               throw new Error(`HTTP ${response.status}`);
@@ -59,6 +79,10 @@ const AssetCache = () => {
           })
           .catch(error => {
             console.warn(`⚠️ Falha ao pré-carregar: ${url} - ${error.message}`);
+            setCacheStatus(prev => ({
+              ...prev,
+              errors: prev.errors + 1
+            }));
             reject(error);
           });
           
@@ -72,10 +96,18 @@ const AssetCache = () => {
           link.onload = () => {
             preloadedAssets.current.add(url);
             console.log(`✅ Asset pré-carregado: ${url}`);
+            setCacheStatus(prev => ({
+              ...prev,
+              loaded: prev.loaded + 1
+            }));
             resolve();
           };
           link.onerror = () => {
             console.warn(`⚠️ Falha ao pré-carregar: ${url}`);
+            setCacheStatus(prev => ({
+              ...prev,
+              errors: prev.errors + 1
+            }));
             reject();
           };
           
@@ -91,8 +123,18 @@ const AssetCache = () => {
       try {
         await Promise.allSettled(assets.map(preloadAsset));
         console.log('✅ Todos os assets foram pré-carregados com sucesso!');
+        setCacheStatus(prev => ({
+          ...prev,
+          loading: false,
+          completed: true
+        }));
       } catch (error) {
         console.error('❌ Erro ao pré-carregar assets:', error);
+        setCacheStatus(prev => ({
+          ...prev,
+          loading: false,
+          completed: true
+        }));
       }
     };
 
@@ -111,8 +153,38 @@ const AssetCache = () => {
     };
   }, []);
 
-  // Este componente não renderiza nada visualmente
-  return null;
+  // Componente visual do indicador de cache
+  const getStatusColor = () => {
+    if (cacheStatus.loading) return 'bg-yellow-500';
+    if (cacheStatus.errors > 0) return 'bg-red-500';
+    if (cacheStatus.completed && cacheStatus.loaded === cacheStatus.total) return 'bg-green-500';
+    return 'bg-gray-500';
+  };
+
+  const getStatusText = () => {
+    if (cacheStatus.loading) return '🔄 Cache';
+    if (cacheStatus.errors > 0) return '❌ Cache';
+    if (cacheStatus.completed && cacheStatus.loaded === cacheStatus.total) return '✅ Cache';
+    return '⏳ Cache';
+  };
+
+  const getStatusDetails = () => {
+    if (cacheStatus.loading) return `${cacheStatus.loaded}/${cacheStatus.total}`;
+    if (cacheStatus.errors > 0) return `${cacheStatus.errors} erro(s)`;
+    if (cacheStatus.completed) return `${cacheStatus.loaded}/${cacheStatus.total}`;
+    return '';
+  };
+
+  return (
+    <div className="fixed top-4 left-4 z-50">
+      <div className={`${getStatusColor()} text-white px-3 py-2 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-300`}>
+        <span>{getStatusText()}</span>
+        {getStatusDetails() && (
+          <span className="text-xs opacity-90">({getStatusDetails()})</span>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default AssetCache;
