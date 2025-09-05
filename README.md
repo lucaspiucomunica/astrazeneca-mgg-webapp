@@ -16,15 +16,18 @@ Esta aplicação oferece uma experiência imersiva para educar sobre a Miastenia
 
 - **Frontend:** Next.js 15, React 19, Tailwind CSS 4
 - **Backend:** Next.js API Routes
-- **Banco de Dados:** MongoDB Atlas
-- **Analytics:** Google Tag Manager integration
-- **Ícones:** Lucide React
+- **Banco de Dados:** MongoDB Atlas com configurações otimizadas
+- **UI/UX:** Swiper.js para navegação por gestos
+- **Gráficos:** Recharts para dashboard administrativo
+- **Analytics:** Google Tag Manager (GTM-MP68RWNM)
+- **Ícones:** Lucide React (40+ ícones)
 - **Deploy:** Vercel (recomendado)
 
 ## 📋 Pré-requisitos
 
 - Node.js 18+ 
 - npm, yarn, pnpm ou bun
+- MongoDB Atlas (variável MONGODB_URI obrigatória)
 
 ## 🛠️ Instalação
 
@@ -39,28 +42,49 @@ cd miastenia-gravis-app
 npm install
 ```
 
-3. Inicie o servidor de desenvolvimento:
+3. Configure as variáveis de ambiente:
+```bash
+cp .env.example .env.local
+# Edite .env.local e adicione sua MONGODB_URI
+```
+
+4. Inicie o servidor de desenvolvimento:
 ```bash
 npm run dev
 ```
 
-4. Acesse [http://localhost:3000](http://localhost:3000) no seu navegador
+5. Acesse [http://localhost:3000](http://localhost:3000) no seu navegador
+
+## 🔧 Comandos Disponíveis
+
+```bash
+npm run dev        # Servidor de desenvolvimento (porta 3000)
+npm run build      # Build de produção
+npm run start      # Servidor de produção
+npm run lint       # Executar ESLint
+npm run test:mongodb  # Testar conexão MongoDB Atlas
+```
+
+### Scripts Utilitários
+```bash
+node scripts/test-mongodb.js  # Script standalone para MongoDB
+```
 
 ## 📊 Funcionalidades
 
 ### Para Usuários
-- **Experiência Imersiva:** Simula os sintomas da Miastenia Gravis
-- **Depoimentos:** Histórias reais de pacientes em áudio e vídeo
-- **Quiz Educativo:** Teste seus conhecimentos sobre a doença
-- **Associações:** Informações sobre grupos de apoio
-- **Avaliação:** Sistema de feedback sobre a experiência
+- **Experiência Imersiva:** Simula os sintomas da Miastenia Gravis com vídeo hero
+- **Depoimentos:** Histórias reais de pacientes em áudio e vídeo com Swiper
+- **Quiz Educativo:** Teste interativo com tracking de progresso
+- **Associações:** Informações detalhadas sobre AMMI, ABRAMI, AFAG e Casa Hunter
+- **Avaliação:** Sistema de feedback com escala de 1-5 estrelas
 
 ### Para Administradores
-- **Painel de Estatísticas:** Acesse `/admin` para ver dados completos
-- **Dashboard Unificado:** Avaliações, quiz e navegação em uma interface
-- **APIs:** Endpoints para gerenciar todos os tipos de dados
-- **Analytics:** Google Tag Manager integration para tracking avançado
-- **Monitoramento:** Acompanhe o engajamento dos usuários em tempo real
+- **Painel de Estatísticas:** Acesse `/admin` para ver dados completos com Recharts
+- **Dashboard Unificado:** Avaliações, quiz e navegação em gráficos interativos
+- **APIs RESTful:** Endpoints com stats dedicadas para cada tipo de dados
+- **Analytics:** GTM com modo quiosque e heartbeat system
+- **Monitoramento:** Auto-refresh por inatividade (30min) e fallback localStorage
 
 ## 🔧 Estrutura do Projeto
 
@@ -87,7 +111,7 @@ miastenia-gravis-app/
 │   ├── video/             # Vídeos
 │   └── images/            # Imagens e logos WebP
 └── scripts/               # Scripts utilitários
-    └── test-mongodb.js
+    └── test-mongodb.js     # Teste standalone MongoDB
 ```
 
 ## 🌐 APIs Disponíveis
@@ -110,10 +134,18 @@ miastenia-gravis-app/
 ### Utilitários
 - `GET /api/test-mongodb` - Testar conexão MongoDB
 
-## 📱 Páginas
+## 📱 Estrutura de Navegação
 
-- `/` - Página principal com experiência imersiva
+### Páginas Principais
+- `/` - Aplicação principal (SPA com roteamento interno)
 - `/admin` - Dashboard administrativo com estatísticas unificadas
+
+### Seções Internas (SPA)
+- `home` - Experiência imersiva principal
+- `testimonials` - Depoimentos de pacientes
+- `quiz` - Quiz educativo interativo
+- `associations` - Informações sobre associações
+- `rating` - Sistema de avaliação
 
 ## 🚀 Deploy
 
@@ -126,20 +158,28 @@ miastenia-gravis-app/
 
 A aplicação pode ser deployada em qualquer provedor que suporte Next.js.
 
-## 🔒 Segurança
+## 🔒 Segurança e Configuração
 
-- Validação de dados nas APIs
-- Conexão segura com MongoDB Atlas
+### Variáveis de Ambiente
+```env
+MONGODB_URI=mongodb+srv://...
+```
+
+### Segurança
+- Validação de dados nas APIs com NextResponse
+- Conexão otimizada com MongoDB Atlas (pool, timeouts, retry)
 - Fallback para localStorage em caso de falha de conexão
+- HTTPS enforced em produção
 
-## 📈 Monitoramento
+## 📈 Monitoramento e Analytics
 
-- Dashboard unificado com estatísticas em tempo real
-- Integração com Google Tag Manager para analytics avançado
-- Tracking de navegação, quiz e avaliações
-- Sistema de heartbeat para modo quiosque
-- Logs de erro no console
-- Métricas de engajamento dos usuários
+- **Dashboard:** Estatísticas em tempo real com Recharts
+- **GTM Integration:** Tracking avançado com eventos customizados
+- **Modo Quiosque:** Heartbeat a cada 25min, auto-refresh após 30min inatividade
+- **Tracking de Eventos:** Navegação, quiz, avaliações e sessões
+- **Fallback System:** LocalStorage quando APIs falham
+- **Performance:** Otimizações para sessões longas
+- **Logs:** Console logging para debugging
 
 ---
 
