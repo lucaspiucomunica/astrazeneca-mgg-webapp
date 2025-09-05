@@ -1,7 +1,6 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { GoogleTagManager } from '@next/third-parties/google'
-import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,7 +19,6 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR">
       <GoogleTagManager gtmId="GTM-MP68RWNM" />
       <body className={inter.className} suppressHydrationWarning>
-        <ServiceWorkerRegistration />
         {children}
       </body>
     </html>
