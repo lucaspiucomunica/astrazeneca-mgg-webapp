@@ -580,7 +580,7 @@ const MiasteniaGravisApp = () => {
             </div>
 
             {/* Vídeo Hero */}
-            <div className="mb-10 rounded-xl overflow-hidden shadow-lg aspect-video relative max-w-xl mx-auto">
+            <div className="mb-10 rounded-xl overflow-hidden shadow-lg aspect-video relative mx-auto">
               {!isHeroVideoPlaying ? (
                 <div 
                   className="group cursor-pointer w-full h-full"
