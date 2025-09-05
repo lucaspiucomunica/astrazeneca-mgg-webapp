@@ -24,6 +24,7 @@ const MiasteniaGravisApp = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
+  const [isHeroVideoPaused, setIsHeroVideoPaused] = useState(false);
   const [isTestimonialVideoPlaying, setIsTestimonialVideoPlaying] = useState({});
   const [showRating, setShowRating] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
@@ -114,6 +115,7 @@ const MiasteniaGravisApp = () => {
   // Função para iniciar o vídeo hero
   const playHeroVideo = () => {
     setIsHeroVideoPlaying(true);
+    setIsHeroVideoPaused(false);
     
     if (heroVideoRef.current) {
       heroVideoRef.current.play().catch(error => {
@@ -148,6 +150,7 @@ const MiasteniaGravisApp = () => {
     stopCurrentMedia();
     setCurrentTestimonial(0);
     setShowTranscription(false);
+    setIsTestimonialVideoPlaying({}); // Resetar estado dos vídeos de depoimentos
   };
 
   // Função para lidar com mudança de slide do Swiper
@@ -309,7 +312,6 @@ const MiasteniaGravisApp = () => {
             key={testimonial.id}
             src={testimonial.mediaUrl}
             className="w-full h-full object-cover"
-            controls
             autoPlay
             onEnded={() => {
               setIsTestimonialVideoPlaying(prev => ({
@@ -752,16 +754,38 @@ const MiasteniaGravisApp = () => {
                   </div>
                 </div>
               ) : (
-                <video
-                  ref={heroVideoRef}
-                  src="/video/miastenia-gravis-hero.webm"
-                  className="w-full h-full object-cover"
-                  controls
-                  autoPlay
-                  onEnded={() => setIsHeroVideoPlaying(false)}
-                  preload="none"
-                  loading="lazy"
-                />
+                <div className="relative w-full h-full">
+                  <video
+                    ref={heroVideoRef}
+                    src="/video/miastenia-gravis-hero.webm"
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    onEnded={() => setIsHeroVideoPlaying(false)}
+                    onPlay={() => setIsHeroVideoPaused(false)}
+                    onPause={() => setIsHeroVideoPaused(true)}
+                    preload="none"
+                    loading="lazy"
+                  />
+                  {/* Botão de controle no canto inferior direito */}
+                  <button
+                    onClick={() => {
+                      if (heroVideoRef.current) {
+                        if (isHeroVideoPaused) {
+                          heroVideoRef.current.play();
+                        } else {
+                          heroVideoRef.current.pause();
+                        }
+                      }
+                    }}
+                    className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all shadow-lg"
+                  >
+                    {isHeroVideoPaused ? (
+                      <Play className="w-6 h-6" />
+                    ) : (
+                      <Pause className="w-6 h-6" />
+                    )}
+                  </button>
+                </div>
               )}
             </div>
 
@@ -878,15 +902,17 @@ const MiasteniaGravisApp = () => {
                                 }
                               </p>
                             </div>
-                            <button
-                              onClick={togglePlayPause}
-                              className="bg-purple-600 text-white p-4 rounded-full hover:bg-purple-700 transition-colors shadow-lg"
-                            >
-                              {isPlaying && currentTestimonial === index ? 
-                                <Pause className="w-6 h-6" /> : 
-                                <Play className="w-6 h-6" />
-                              }
-                            </button>
+                            {testimonial.type === 'video' && isTestimonialVideoPlaying[testimonial.id] && (
+                              <button
+                                onClick={togglePlayPause}
+                                className="bg-purple-600 text-white p-4 rounded-full hover:bg-purple-700 transition-colors shadow-lg"
+                              >
+                                {isPlaying && currentTestimonial === index ? 
+                                  <Pause className="w-6 h-6" /> : 
+                                  <Play className="w-6 h-6" />
+                                }
+                              </button>
+                            )}
                           </div>
 
                           {/* Área do player de vídeo/áudio */}
