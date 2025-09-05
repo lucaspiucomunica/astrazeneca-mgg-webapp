@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
 import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer, initializeKioskMode } from '../lib/datalayer';
@@ -75,8 +75,9 @@ const MiasteniaGravisApp = () => {
     const currentTestimonialData = testimonials[currentTestimonial];
     const mediaType = currentTestimonialData.type;
     
-    // Usar o elemento HTML existente
-    const currentMedia = mediaType === 'video' ? videoRef.current : audioRef.current;
+    // Encontrar o elemento de mídia ativo no DOM
+    const mediaContainer = document.querySelector(`[data-testimonial-id="${currentTestimonialData.id}"]`);
+    const currentMedia = mediaContainer?.querySelector(mediaType === 'video' ? 'video' : 'audio');
     
     if (currentMedia) {
       if (isPlaying) {
@@ -92,14 +93,15 @@ const MiasteniaGravisApp = () => {
 
   // Função para parar reprodução ao trocar de depoimento
   const stopCurrentMedia = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
+    // Parar todos os elementos de mídia dos depoimentos
+    const allMedia = document.querySelectorAll('audio, video');
+    allMedia.forEach(media => {
+      if (media !== heroVideoRef.current) { // Não parar o vídeo hero
+        media.pause();
+        media.currentTime = 0;
+      }
+    });
+    
     if (heroVideoRef.current) {
       heroVideoRef.current.pause();
       heroVideoRef.current.currentTime = 0;
@@ -120,9 +122,9 @@ const MiasteniaGravisApp = () => {
   };
 
   // Função para lidar com o fim da reprodução
-  const handleMediaEnded = () => {
+  const handleMediaEnded = useCallback(() => {
     setIsPlaying(false);
-  };
+  }, []);
 
   // Função para trocar de depoimento
   const changeTestimonial = (index) => {
@@ -264,38 +266,40 @@ const MiasteniaGravisApp = () => {
     },
   ];
 
+  // Funções memoizadas para controle de mídia
+  const handlePlay = useCallback(() => setIsPlaying(true), []);
+  const handlePause = useCallback(() => setIsPlaying(false), []);
+
   // Memoizar elementos de mídia para evitar re-criação desnecessária
   const mediaElements = useMemo(() => {
-    return testimonials.map((testimonial, index) => ({
+    return testimonials.map((testimonial) => ({
       ...testimonial,
       element: testimonial.type === 'video' ? (
         <video
           key={testimonial.id}
-          ref={currentTestimonial === index ? videoRef : null}
           src={testimonial.mediaUrl}
           className="w-full h-full object-cover"
           controls
           onEnded={handleMediaEnded}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          preload="metadata"
+          onPlay={handlePlay}
+          onPause={handlePause}
+          preload="none"
           loading="lazy"
         />
       ) : (
         <audio
           key={testimonial.id}
-          ref={currentTestimonial === index ? audioRef : null}
           src={testimonial.mediaUrl}
           className="w-full"
           controls
           onEnded={handleMediaEnded}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          preload="metadata"
+          onPlay={handlePlay}
+          onPause={handlePause}
+          preload="none"
         />
       )
     }));
-  }, [testimonials, currentTestimonial]);
+  }, [testimonials, handleMediaEnded, handlePlay, handlePause]);
 
   // Perguntas do Quiz
   const quizQuestions = [
@@ -702,7 +706,6 @@ const MiasteniaGravisApp = () => {
                     fill
                     className="object-cover"
                     priority
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-black/20 bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
                     <div className="bg-white bg-opacity-90 rounded-full p-4 transform scale-100 group-hover:scale-110 transition-all">
@@ -850,11 +853,11 @@ const MiasteniaGravisApp = () => {
 
                           {/* Área do player de vídeo/áudio */}
                           {testimonial.type === 'video' ? (
-                            <div className="mb-4 rounded-lg overflow-hidden aspect-video">
+                            <div className="mb-4 rounded-lg overflow-hidden aspect-video" data-testimonial-id={testimonial.id}>
                               {mediaElements[index]?.element}
                             </div>
                           ) : (
-                            <div className="mb-4 bg-white bg-opacity-50 rounded-lg p-4">
+                            <div className="mb-4 bg-white bg-opacity-50 rounded-lg p-4" data-testimonial-id={testimonial.id}>
                               <div className="flex items-center gap-3 mb-2">
                                 <Volume2 className="w-5 h-5 text-purple-600" />
                                 <span className="text-sm text-gray-700 font-medium">Depoimento em Áudio</span>
