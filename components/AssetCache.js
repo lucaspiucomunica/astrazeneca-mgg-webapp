@@ -36,30 +36,51 @@ const AssetCache = () => {
       }
 
       return new Promise((resolve, reject) => {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        
-        // Determinar o tipo de asset
-        if (url.includes('.mp3') || url.includes('.wav') || url.includes('.ogg')) {
-          link.as = 'audio';
-        } else if (url.includes('.webm') || url.includes('.mp4')) {
-          link.as = 'video';
-        } else if (url.includes('.webp') || url.includes('.png') || url.includes('.jpg') || url.includes('.jpeg')) {
+        // Para vídeos e áudios, usar fetch para forçar o download
+        if (url.includes('.mp3') || url.includes('.wav') || url.includes('.ogg') || 
+            url.includes('.webm') || url.includes('.mp4')) {
+          
+          fetch(url, { 
+            method: 'HEAD', // Apenas verificar se o arquivo existe
+            cache: 'force-cache' // Forçar cache
+          })
+          .then(() => {
+            // Se o HEAD funcionou, fazer o download completo
+            return fetch(url, { cache: 'force-cache' });
+          })
+          .then(response => {
+            if (response.ok) {
+              preloadedAssets.current.add(url);
+              console.log(`✅ Asset pré-carregado: ${url}`);
+              resolve();
+            } else {
+              throw new Error(`HTTP ${response.status}`);
+            }
+          })
+          .catch(error => {
+            console.warn(`⚠️ Falha ao pré-carregar: ${url} - ${error.message}`);
+            reject(error);
+          });
+          
+        } else {
+          // Para imagens, usar o método tradicional com link preload
+          const link = document.createElement('link');
+          link.rel = 'preload';
           link.as = 'image';
+          link.href = url;
+          
+          link.onload = () => {
+            preloadedAssets.current.add(url);
+            console.log(`✅ Asset pré-carregado: ${url}`);
+            resolve();
+          };
+          link.onerror = () => {
+            console.warn(`⚠️ Falha ao pré-carregar: ${url}`);
+            reject();
+          };
+          
+          document.head.appendChild(link);
         }
-        
-        link.href = url;
-        link.onload = () => {
-          preloadedAssets.current.add(url);
-          console.log(`✅ Asset pré-carregado: ${url}`);
-          resolve();
-        };
-        link.onerror = () => {
-          console.warn(`⚠️ Falha ao pré-carregar: ${url}`);
-          reject();
-        };
-        
-        document.head.appendChild(link);
       });
     };
 

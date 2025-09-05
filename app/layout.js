@@ -18,14 +18,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <head>
-        {/* Preload dos assets críticos para melhor performance no Kiosker.IO */}
+        {/* Preload apenas das imagens críticas (vídeos e áudios são pré-carregados via fetch) */}
         <link rel="preload" href="/images/thumb-video-hero.webp" as="image" />
-        <link rel="preload" href="/video/miastenia-gravis-hero.webm" as="video" />
-        <link rel="preload" href="/audio/guilherme.mp3" as="audio" />
-        <link rel="preload" href="/audio/kenia.mp3" as="audio" />
-        <link rel="preload" href="/video/miastenia-gravis.webm" as="video" />
-        
-        {/* Preload dos logos das associações */}
         <link rel="preload" href="/images/logo-AMMI.webp" as="image" />
         <link rel="preload" href="/images/logo-abrami.webp" as="image" />
         <link rel="preload" href="/images/logo-afag.webp" as="image" />
