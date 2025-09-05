@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * Componente para gerenciar cache de assets no Kiosker.IO
  * Pre-carrega todos os assets críticos para evitar re-download
+ * Versão otimizada que reutiliza elementos de mídia
  */
 const AssetCache = () => {
   const preloadedAssets = useRef(new Set());
+  const mediaElements = useRef(new Map()); // Armazena elementos de mídia reutilizáveis
   const [cacheStatus, setCacheStatus] = useState({
     loading: true,
     loaded: 0,
@@ -54,22 +56,25 @@ const AssetCache = () => {
       }
 
       return new Promise((resolve, reject) => {
-        // Para vídeos, criar elemento video oculto para forçar cache
+        // Para vídeos, criar elemento video otimizado para cache
         if (url.includes('.webm') || url.includes('.mp4')) {
           const video = document.createElement('video');
           video.style.display = 'none';
           video.preload = 'auto';
+          video.crossOrigin = 'anonymous';
           video.src = url;
+          
+          // Configurações para otimizar cache
+          video.setAttribute('data-cached', 'true');
           
           video.onloadeddata = () => {
             preloadedAssets.current.add(url);
+            mediaElements.current.set(url, video); // Armazenar para reutilização
             console.log(`✅ Vídeo pré-carregado: ${url}`);
             setCacheStatus(prev => ({
               ...prev,
               loaded: prev.loaded + 1
             }));
-            // Manter o elemento para garantir cache
-            document.body.appendChild(video);
             resolve();
           };
           
@@ -86,21 +91,24 @@ const AssetCache = () => {
           video.load();
           
         } else if (url.includes('.mp3') || url.includes('.wav') || url.includes('.ogg')) {
-          // Para áudios, criar elemento audio oculto para forçar cache
+          // Para áudios, criar elemento audio otimizado para cache
           const audio = document.createElement('audio');
           audio.style.display = 'none';
           audio.preload = 'auto';
+          audio.crossOrigin = 'anonymous';
           audio.src = url;
+          
+          // Configurações para otimizar cache
+          audio.setAttribute('data-cached', 'true');
           
           audio.onloadeddata = () => {
             preloadedAssets.current.add(url);
+            mediaElements.current.set(url, audio); // Armazenar para reutilização
             console.log(`✅ Áudio pré-carregado: ${url}`);
             setCacheStatus(prev => ({
               ...prev,
               loaded: prev.loaded + 1
             }));
-            // Manter o elemento para garantir cache
-            document.body.appendChild(audio);
             resolve();
           };
           
@@ -122,6 +130,7 @@ const AssetCache = () => {
           link.rel = 'preload';
           link.as = 'image';
           link.href = url;
+          link.crossOrigin = 'anonymous';
           
           link.onload = () => {
             preloadedAssets.current.add(url);
@@ -224,6 +233,11 @@ const AssetCache = () => {
     // Executar pré-carregamento
     preloadAllAssets();
 
+    // Expor elementos de mídia em cache globalmente para reutilização
+    window.getCachedMediaElement = (url) => {
+      return mediaElements.current.get(url);
+    };
+
     // Cleanup
     return () => {
       // Remover links de preload se necessário
@@ -233,6 +247,17 @@ const AssetCache = () => {
           link.remove();
         }
       });
+      
+      // Limpar elementos de mídia em cache
+      mediaElements.current.forEach((element, url) => {
+        if (element && element.parentNode) {
+          element.parentNode.removeChild(element);
+        }
+      });
+      mediaElements.current.clear();
+      
+      // Limpar função global
+      delete window.getCachedMediaElement;
     };
   }, []);
 

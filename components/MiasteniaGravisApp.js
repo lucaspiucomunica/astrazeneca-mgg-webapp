@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, CheckCircle, XCircle, ChevronRight, Award, FileText, Headphones, Home, Video, ExternalLink, ArrowLeft, Phone, Mail, Instagram, Users, Frown, Meh, Smile, Heart, Activity, ArrowDown, Zap, MessageCircle, Shield, AlertTriangle } from 'lucide-react';
 import { trackRating, trackQuizEvent, trackNavigationEvent, initializeDataLayer, initializeKioskMode } from '../lib/datalayer';
 import AssetCache from './AssetCache';
+import { useMediaCache } from './useMediaCache';
 
 // Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -34,6 +35,9 @@ const MiasteniaGravisApp = () => {
   const videoRef = useRef(null);
   const heroVideoRef = useRef(null);
   const swiperRef = useRef(null);
+  
+  // Hook para gerenciar cache de mídia
+  const { getMediaElement, pauseAllMedia, getCacheStats } = useMediaCache();
 
   // Dados das associações
   const associations = [
@@ -72,13 +76,25 @@ const MiasteniaGravisApp = () => {
 
   // Função para controlar reprodução
   const togglePlayPause = () => {
-    const currentMedia = testimonials[currentTestimonial].type === 'video' ? videoRef.current : audioRef.current;
+    const currentTestimonialData = testimonials[currentTestimonial];
+    const mediaType = currentTestimonialData.type;
+    const mediaUrl = currentTestimonialData.mediaUrl;
     
-    if (currentMedia) {
+    // Obter elemento de mídia (em cache ou novo)
+    const mediaElement = getMediaElement(mediaUrl, mediaType);
+    
+    // Atualizar refs para usar o elemento correto
+    if (mediaType === 'video') {
+      videoRef.current = mediaElement;
+    } else {
+      audioRef.current = mediaElement;
+    }
+    
+    if (mediaElement) {
       if (isPlaying) {
-        currentMedia.pause();
+        mediaElement.pause();
       } else {
-        currentMedia.play().catch(error => {
+        mediaElement.play().catch(error => {
           console.error('Erro ao reproduzir mídia:', error);
         });
       }
@@ -107,8 +123,13 @@ const MiasteniaGravisApp = () => {
   // Função para iniciar o vídeo hero
   const playHeroVideo = () => {
     setIsHeroVideoPlaying(true);
-    if (heroVideoRef.current) {
-      heroVideoRef.current.play().catch(error => {
+    
+    // Obter elemento de vídeo em cache ou criar novo
+    const heroVideoElement = getMediaElement('/video/miastenia-gravis-hero.webm', 'video');
+    heroVideoRef.current = heroVideoElement;
+    
+    if (heroVideoElement) {
+      heroVideoElement.play().catch(error => {
         console.error('Erro ao reproduzir vídeo:', error);
       });
     }
@@ -212,6 +233,13 @@ const MiasteniaGravisApp = () => {
         heroVideoRef.current.currentTime = 0;
       }
     }
+    
+    // Pausar toda a mídia ao trocar de página para economizar recursos
+    pauseAllMedia();
+    
+    // Log das estatísticas do cache para debug
+    const cacheStats = getCacheStats();
+    console.log('📊 Estatísticas do cache de mídia:', cacheStats);
     
     // Tracking do início do quiz
     if (currentPage === 'quiz' && currentQuestionIndex === 0 && !quizCompleted && !showResult) {
@@ -679,6 +707,7 @@ const MiasteniaGravisApp = () => {
                   controls
                   autoPlay
                   onEnded={() => setIsHeroVideoPlaying(false)}
+                  preload="none"
                 />
               )}
             </div>
@@ -820,6 +849,7 @@ const MiasteniaGravisApp = () => {
                                 onEnded={handleMediaEnded}
                                 onPlay={() => setIsPlaying(true)}
                                 onPause={() => setIsPlaying(false)}
+                                preload="none"
                               />
                             </div>
                           ) : (
@@ -836,6 +866,7 @@ const MiasteniaGravisApp = () => {
                                 onEnded={handleMediaEnded}
                                 onPlay={() => setIsPlaying(true)}
                                 onPause={() => setIsPlaying(false)}
+                                preload="none"
                               />
                             </div>
                           )}
