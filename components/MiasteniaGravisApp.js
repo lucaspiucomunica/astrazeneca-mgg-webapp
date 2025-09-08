@@ -254,6 +254,14 @@ const MiasteniaGravisApp = () => {
   // Depoimentos fictícios com transcrições
   const testimonials = [
     {
+      id: 3,
+      name: "Gabriel, Lua e Tayná",
+      description: "Pacientes de Miastenia Gravis",
+      type: "video",
+      mediaUrl: "/video/miastenia-gravis.webm",
+      transcription: null
+    },
+    {
       id: 1,
       name: "G.",
       description: "Paciente de Miastenia Gravis",
@@ -268,14 +276,6 @@ const MiasteniaGravisApp = () => {
       type: "audio",
       mediaUrl: "/audio/kenia.mp3",
       transcription: "Tive o diagnóstico de minha Miastenia Gravis em 2020 e profissionalmente hoje eu sou advogada. Os primeiros sintomas surgiram com fraquezas e fadiga. Eu tinha uma fraqueza tão grande, mas tão grande, que eu não conseguia dirigir. E eu procurei uma médica em São Paulo. Essa médica foi a primeira médica a me dar atenção. Aí ela começou a me fazer várias perguntas e ela pediu uma avaliação rigorosa com o neurologista.\n\nE foi a partir daí que começou a investigação. Aí demorou um ano para eu poder fechar o diagnóstico e depois do diagnóstico eu comecei tratamentos, mas nada dava um resultado muito bom. Eu tive muitas crises, muitas internações, tive uma crise grave que eu precisei ficar na UTI e precisei trancar a faculdade por diversas vezes. Mas terminei e o diagnóstico da minha Miastenia Gravis na minha vida e me possibilitou enxergar a vida com outros olhos.\n\nNão é romantizar, mas depois que você tem de você tem que transformar. E é isso que eu escolhi fazer. Eu optei por viver um dia de cada vez, com qualidade de vida e da melhor forma possível."
-    },
-    {
-      id: 3,
-      name: "Gabriel, Lua e Tayná",
-      description: "Pacientes de Miastenia Gravis",
-      type: "video",
-      mediaUrl: "/video/miastenia-gravis.webm",
-      transcription: null
     },
   ];
 
