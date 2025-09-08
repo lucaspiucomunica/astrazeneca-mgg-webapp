@@ -357,12 +357,12 @@ const MiasteniaGravisApp = () => {
     {
       question: "Além da fraqueza muscular, quais outros principais sintomas a Miastenia Gravis pode causar?",
       options: [
-        "Febre alta constante e enjoo",
         "Visão dupla e pálpebras caídas",
+        "Febre alta constante e enjoo",
         "Dor nas articulações e tontura",
         "Perda de memória e confusão mental"
       ],
-      correct: 1,
+      correct: 0,
       explanation: "<p>Problemas oculares como visão dupla (diplopia) e pálpebras caídas (ptose) são sintomas característicos da Miastenia Gravis<sup>2</sup>.</p>"
     },
     {
@@ -380,11 +380,11 @@ const MiasteniaGravisApp = () => {
       question: "Pessoas com Miastenia Gravis podem levar uma vida ativa?",
       options: [
         "Não, ficam sempre acamadas",
-        "Sim, com diagnóstico e manejo adequados",
         "Apenas algumas pessoas",
-        "Somente com transplante"
+        "Somente com transplante",
+        "Sim, com diagnóstico e manejo adequados"
       ],
-      correct: 1,
+      correct: 3,
       explanation: "<p>O manejo adequado permite que pessoas com Miastenia Gravis vivam com autonomia e qualidade de vida, já que gerencia os sintomas e busca a estabilização. Isso significa poder avistar novos horizontes e retomar planos <sup>1,2,4,6</sup>.</p>"
     }
   ];
@@ -841,7 +841,7 @@ const MiasteniaGravisApp = () => {
           <div className="p-6 border-b border-gray-200 flex items-center justify-between">
             <button
               onClick={() => navigateTo('home')}
-              className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold"
+              className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold px-4 py-2 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               Voltar
